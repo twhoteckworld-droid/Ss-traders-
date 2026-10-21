@@ -6,9 +6,7 @@ import { X, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
 
 const schema = z.object({
   name: z.string().min(2, 'Name required'),
-  phone: z.string().regex(/^[6-9]\d{9}$/, 'Valid 10-digit number required')
-    .refine((val) => !/(\d)\1{9}/.test(val), "Fake number not allowed") // Blocks 0000000000, 9999999999
-    .refine((val) => val !== '1234567890', "Fake number not allowed"),
+  phone: z.string().regex(/^[6-9]\d{9}$/, 'Valid 10-digit number required').refine((val) => !/(\d)\1{9}/.test(val), "Fake number not allowed"),
   address: z.string().min(10, 'Address too short'),
 });
 
@@ -40,13 +38,8 @@ export default function CartDrawer() {
       const newOrderId = crypto.randomUUID(); 
       
       const { error: orderError } = await supabase.from('orders').insert({
-          id: newOrderId,
-          order_number: orderNumber,
-          customer_name: form.name,
-          customer_phone: form.phone,
-          customer_address: form.address,
-          total_amount: subtotal,
-          status: 'Pending',
+          id: newOrderId, order_number: orderNumber, customer_name: form.name, customer_phone: form.phone,
+          customer_address: form.address, total_amount: subtotal, status: 'Pending',
         });
       if (orderError) throw orderError;
 
@@ -54,6 +47,7 @@ export default function CartDrawer() {
         order_id: newOrderId,
         product_id: i.id,
         product_title: i.size ? `${i.title} (Size: ${i.size})` : i.title,
+        size: i.size || null, // <--- Size pass kar rahe hain trigger ke liye
         quantity: i.quantity,
         unit_price: i.price,
       }));
@@ -65,10 +59,9 @@ export default function CartDrawer() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
-            access_key: emailKey,
-            subject: `New Order: ${orderNumber} from SS Traders`,
+            access_key: emailKey, subject: `New Order: ${orderNumber} from SS Traders`,
             Name: form.name, Phone: form.phone, Address: form.address,
-            Items: items.map(i => `${i.title} x ${i.quantity}`).join(', '),
+            Items: items.map(i => `${i.title} ${i.size ? `(Size: ${i.size})` : ''} x ${i.quantity}`).join(', '),
             Total: `₹${subtotal.toFixed(2)}`
           })
         }).catch(err => console.log(err));
@@ -76,14 +69,10 @@ export default function CartDrawer() {
 
       const number = import.meta.env.VITE_WHATSAPP_NUMBER || '917018721886';
       const lines = [
-        '🛍️ *NEW ORDER – SS TRADERS*',
-        `📋 Order: *${orderNumber}*`,
-        '──────────────',
-        `👤 ${form.name}`, `📞 ${form.phone}`, `📍 ${form.address}`,
-        '──────────────',
+        '🛍️ *NEW ORDER – SS TRADERS*', `📋 Order: *${orderNumber}*`, '──────────────',
+        `👤 ${form.name}`, `📞 ${form.phone}`, `📍 ${form.address}`, '──────────────',
         ...items.map((i) => `• ${i.title} ${i.size ? `(Size: ${i.size})` : ''} × ${i.quantity} = ₹${(i.price * i.quantity).toFixed(2)}`),
-        '──────────────',
-        `💰 *Total: ₹${subtotal.toFixed(2)}*`,
+        '──────────────', `💰 *Total: ₹${subtotal.toFixed(2)}*`,
       ];
       const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\r\n'))}`;
 
@@ -101,7 +90,6 @@ export default function CartDrawer() {
     }
   };
 
-  // UI (Same as before)
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/50" onClick={closeCart} />

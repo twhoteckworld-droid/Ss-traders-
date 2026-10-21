@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ArrowLeft, ShoppingBag, Star, X } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star } from 'lucide-react';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -24,7 +24,11 @@ export default function ProductPage() {
         navigate('/');
       } else {
         setProduct(data);
-        if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
+        // Auto select first available size
+        if (data.sizes && data.sizes.length > 0) {
+          const firstAvailable = data.sizes.find(s => (data.size_stock?.[s] || 0) > 0);
+          setSelectedSize(firstAvailable || '');
+        }
       }
       setLoading(false);
     })();
@@ -32,7 +36,13 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (product.stock <= 0) return alert('Product out of stock!');
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) return alert('Please select a size');
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) return alert('Please select an available size');
+    
+    // Check size stock
+    if (selectedSize && (product.size_stock?.[selectedSize] || 0) <= 0) {
+      return alert('This size is out of stock!');
+    }
+
     addItem(product, selectedSize);
     openCart();
   };
@@ -40,8 +50,8 @@ export default function ProductPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!product) return null;
 
-  const discount = product.original_price ? Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
   const isOutOfStock = product.stock <= 0;
+  const discount = product.original_price ? Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-white pb-24 font-sans">
@@ -89,7 +99,7 @@ export default function ProductPage() {
           {product.original_price && (
             <div className="flex flex-col mb-1">
               <span className="text-sm text-gray-400 line-through">MRP: ₹{product.original_price}</span>
-              <span className="text-xs text-emerald-600 font-bold">Inclusive of all taxes</span>
+              <span className="text-xs text-emerald-600 font-bold">{discount}% OFF</span>
             </div>
           )}
         </div>
@@ -98,9 +108,23 @@ export default function ProductPage() {
           <div className="mt-6">
             <h3 className="text-sm font-bold text-gray-900 mb-3">Select Size</h3>
             <div className="grid grid-cols-4 gap-2">
-              {product.sizes.map((size) => (
-                <button key={size} onClick={() => setSelectedSize(size)} disabled={isOutOfStock} className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${selectedSize === size ? 'border-emerald-700 bg-emerald-50 text-emerald-900' : 'border-gray-200 text-gray-600'} ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}>{size}</button>
-              ))}
+              {product.sizes.map((size) => {
+                const sizeQty = product.size_stock?.[size] || 0;
+                const isSizeOut = sizeQty <= 0;
+                return (
+                  <button 
+                    key={size} 
+                    onClick={() => setSelectedSize(size)} 
+                    disabled={isOutOfStock || isSizeOut} 
+                    className={`relative py-3 rounded-xl border-2 font-bold text-sm transition-all 
+                      ${selectedSize === size ? 'border-emerald-700 bg-emerald-50 text-emerald-900' : 'border-gray-200 text-gray-600'} 
+                      ${(isOutOfStock || isSizeOut) ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200' : ''}`}
+                  >
+                    {size}
+                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-400 rotate-45 transform origin-center"></div></div>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
