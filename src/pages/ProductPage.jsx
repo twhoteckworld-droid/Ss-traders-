@@ -24,10 +24,9 @@ export default function ProductPage() {
         navigate('/');
       } else {
         setProduct(data);
-        // Auto select first available size
+        // Agar size hai, toh pehla size select kar lo
         if (data.sizes && data.sizes.length > 0) {
-          const firstAvailable = data.sizes.find(s => (data.size_stock?.[s] || 0) > 0);
-          setSelectedSize(firstAvailable || '');
+          setSelectedSize(data.sizes[0]);
         }
       }
       setLoading(false);
@@ -36,10 +35,10 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (product.stock <= 0) return alert('Product out of stock!');
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) return alert('Please select an available size');
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) return alert('Please select a size');
     
-    // Check size stock
-    if (selectedSize && (product.size_stock?.[selectedSize] || 0) <= 0) {
+    // Size stock check karo sirf tab jab data available ho
+    if (selectedSize && product.size_stock && product.size_stock[selectedSize] !== undefined && product.size_stock[selectedSize] <= 0) {
       return alert('This size is out of stock!');
     }
 
@@ -109,8 +108,10 @@ export default function ProductPage() {
             <h3 className="text-sm font-bold text-gray-900 mb-3">Select Size</h3>
             <div className="grid grid-cols-4 gap-2">
               {product.sizes.map((size) => {
-                const sizeQty = product.size_stock?.[size] || 0;
-                const isSizeOut = sizeQty <= 0;
+                // Agar size_stock available hai tabhi out-of-stock check karo
+                const sizeQty = product.size_stock?.[size];
+                const isSizeOut = sizeQty !== undefined ? sizeQty <= 0 : false;
+                
                 return (
                   <button 
                     key={size} 
