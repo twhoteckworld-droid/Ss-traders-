@@ -2,13 +2,24 @@ import { useState } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { supabase } from '../lib/supabase';
 import { z } from 'zod';
-import { X, Minus, Plus, ShoppingBag, Loader2 } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, Loader2, CreditCard } from 'lucide-react';
 
 const schema = z.object({
   name: z.string().min(2, 'Name required'),
   phone: z.string().regex(/^[6-9]\d{9}$/, 'Valid 10-digit number required').refine((val) => !/(\d)\1{9}/.test(val), "Fake number not allowed"),
   address: z.string().min(10, 'Address too short'),
 });
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, clear } = useCartStore();
@@ -36,55 +47,126 @@ export default function CartDrawer() {
     try {
       const orderNumber = `SST-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const newOrderId = crypto.randomUUID(); 
-      
-      const { error: orderError } = await supabase.from('orders').insert({
-          id: newOrderId, order_number: orderNumber, customer_name: form.name, customer_phone: form.phone,
-          customer_address: form.address, total_amount: subtotal, status: 'Pending',
-        });
-      if (orderError) throw orderError;
 
-      const orderItems = items.map((i) => ({
-        order_id: newOrderId,
-        product_id: i.id,
-        product_title: i.size ? `${i.title} (Size: ${i.size})` : i.title,
-        size: i.size || null, // <--- Size pass kar rahe hain trigger ke liye
-        quantity: i.quantity,
-        unit_price: i.price,
-      }));
-      await supabase.from('order_items').insert(orderItems);
+      // 1. Load Razorpay Script
+      const res = await loadRazorpayScript();
+      if (!res) throw new Error('Razorpay SDK failed to load. Check your internet connection.');
 
-      const emailKey = import.meta.env.VITE_WEB3FORMS_KEY;
-      if (emailKey) {
-        fetch('https://api.web3forms.com/submit', {
+      // 2. Create Razorpay Order via Supabase Edge Function
+      const createOrderResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-razorpay-order`,
+        {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            access_key: emailKey, subject: `New Order: ${orderNumber} from SS Traders`,
-            Name: form.name, Phone: form.phone, Address: form.address,
-            Items: items.map(i => `${i.title} ${i.size ? `(Size: ${i.size})` : ''} x ${i.quantity}`).join(', '),
-            Total: `₹${subtotal.toFixed(2)}`
-          })
-        }).catch(err => console.log(err));
-      }
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ amount: subtotal, currency: 'INR', receipt: orderNumber }),
+        }
+      );
+      
+      const razorpayOrder = await createOrderResponse.json();
+      if (razorpayOrder.error) throw new Error(razorpayOrder.error);
 
-      const number = import.meta.env.VITE_WHATSAPP_NUMBER || '917018721886';
-      const lines = [
-        '🛍️ *NEW ORDER – SS TRADERS*', `📋 Order: *${orderNumber}*`, '──────────────',
-        `👤 ${form.name}`, `📞 ${form.phone}`, `📍 ${form.address}`, '──────────────',
-        ...items.map((i) => `• ${i.title} ${i.size ? `(Size: ${i.size})` : ''} × ${i.quantity} = ₹${(i.price * i.quantity).toFixed(2)}`),
-        '──────────────', `💰 *Total: ₹${subtotal.toFixed(2)}*`,
-      ];
-      const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\r\n'))}`;
+      // 3. Open Razorpay Popup
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: 'SS Traders',
+        description: 'Premium Footwear Purchase',
+        order_id: razorpayOrder.id,
+        handler: async function (response) {
+          // 4. Verify Payment Signature
+          const verifyResponse = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-razorpay-payment`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            }
+          );
+          const verifyResult = await verifyResponse.json();
 
-      clear(); 
-      closeCart(); 
-      setShowCheckout(false); 
-      setForm({ name: '', phone: '', address: '' });
+          if (verifyResult.status === 'success') {
+            // 5. Save Order to Database (Status: Confirmed)
+            const { error: orderError } = await supabase.from('orders').insert({
+              id: newOrderId,
+              order_number: orderNumber,
+              customer_name: form.name,
+              customer_phone: form.phone,
+              customer_address: form.address,
+              total_amount: subtotal,
+              status: 'Confirmed', 
+              razorpay_payment_id: response.razorpay_payment_id,
+            });
+            
+            if (orderError) throw orderError;
 
-      setTimeout(() => { window.location.href = whatsappUrl; }, 500);
+            const orderItems = items.map((i) => ({
+              order_id: newOrderId,
+              product_id: i.id,
+              product_title: i.size ? `${i.title} (Size: ${i.size})` : i.title,
+              size: i.size || null, 
+              quantity: i.quantity,
+              unit_price: i.price,
+            }));
+            await supabase.from('order_items').insert(orderItems);
+
+            // 6. Email Notification
+            const emailKey = import.meta.env.VITE_WEB3FORMS_KEY;
+            if (emailKey) {
+              fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                  access_key: emailKey, subject: `PAID Order: ${orderNumber} from SS Traders`,
+                  Name: form.name, Phone: form.phone, Address: form.address,
+                  Items: items.map(i => `${i.title} ${i.size ? `(Size: ${i.size})` : ''} x ${i.quantity}`).join(', '),
+                  Total: `₹${subtotal.toFixed(2)}`,
+                  Payment_ID: response.razorpay_payment_id
+                })
+              }).catch(err => console.log(err));
+            }
+
+            // 7. WhatsApp Message
+            const number = import.meta.env.VITE_WHATSAPP_NUMBER || '917018721886';
+            const lines = [
+              '🛍️ *NEW PAID ORDER – SS TRADERS*', `📋 Order: *${orderNumber}*`, '──────────────',
+              `👤 ${form.name}`, `📞 ${form.phone}`, `📍 ${form.address}`, '──────────────',
+              ...items.map((i) => `• ${i.title} ${i.size ? `(Size: ${i.size})` : ''} × ${i.quantity} = ₹${(i.price * i.quantity).toFixed(2)}`),
+              '──────────────', `💰 *Total Paid: ₹${subtotal.toFixed(2)}*`,
+              `💳 *Razorpay ID:* ${response.razorpay_payment_id}`
+            ];
+            const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\r\n'))}`;
+
+            clear(); 
+            closeCart(); 
+            setShowCheckout(false); 
+            setForm({ name: '', phone: '', address: '' });
+            alert('✅ Payment Successful! Order Confirmed.');
+
+            setTimeout(() => { window.location.href = whatsappUrl; }, 500);
+          } else {
+            alert('❌ Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: { name: form.name, contact: form.phone },
+        theme: { color: '#047857' },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
 
     } catch (err) {
-      alert('Order Failed: ' + err.message);
+      alert('Payment Failed: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -130,8 +212,9 @@ export default function CartDrawer() {
                 {errors.phone && <p className="text-red-500 text-xs">{errors.phone}</p>}
                 <textarea placeholder="Delivery Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} rows={2} className="w-full border rounded-lg p-2 text-sm" />
                 {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
-                <button type="submit" disabled={loading} className="w-full bg-emerald-700 text-white py-3 rounded-xl font-semibold flex justify-center items-center gap-2 disabled:opacity-50">
-                  {loading ? <><Loader2 className="animate-spin" size={16} /> Processing...</> : 'Confirm Order via WhatsApp'}
+                
+                <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold flex justify-center items-center gap-2 disabled:opacity-50 mt-2 shadow-lg shadow-blue-600/30">
+                  {loading ? <><Loader2 className="animate-spin" size={16} /> Processing...</> : <><CreditCard size={18} /> Pay ₹{subtotal} & Place Order</>}
                 </button>
               </form>
             )}
