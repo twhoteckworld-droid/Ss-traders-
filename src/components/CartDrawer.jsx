@@ -120,7 +120,7 @@ export default function CartDrawer() {
           }
         },
         prefill: { name: form.name, contact: form.phone },
-        theme: { color: '#d97706' }, // Amber-600 color for Razorpay popup
+        theme: { color: '#D4AF37' }, // Royal Gold color for Razorpay
       };
 
       const rzp = new window.Razorpay(options);
@@ -135,18 +135,18 @@ export default function CartDrawer() {
 
   if (paymentSuccess) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4">
-        <div className="bg-[#121212] border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-300">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/90 backdrop-blur-md px-4">
+        <div className="bg-charcoal border border-[rgba(212,175,55,0.3)] rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-300">
           <div className="flex justify-center mb-6">
-            <CheckCircle2 size={70} className="text-amber-500" />
+            <CheckCircle2 size={70} className="text-gold-primary drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]" />
           </div>
-          <h2 className="text-2xl font-serif font-bold text-white mb-3">Order Confirmed</h2>
-          <p className="text-gray-400 text-sm mb-8">
+          <h2 className="text-2xl font-serif font-bold text-ivory mb-3">Order Confirmed</h2>
+          <p className="text-muted-gold text-sm mb-8">
             Your premium footwear is being prepared. We will notify you soon.
           </p>
           <button 
             onClick={() => { setPaymentSuccess(false); closeCart(); }}
-            className="w-full bg-amber-500 text-black font-black uppercase tracking-widest text-xs py-4 rounded-xl active:scale-95 transition"
+            className="w-full gold-gradient-bg text-obsidian font-bold uppercase tracking-widest text-xs py-4 rounded-md active:scale-95 transition hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]"
           >
             Continue Shopping
           </button>
@@ -157,48 +157,60 @@ export default function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={closeCart} />
-      <div className="relative w-full max-w-md h-full bg-[#0a0a0a] border-l border-white/10 flex flex-col shadow-2xl">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeCart} />
+      <div className="relative w-full max-w-md h-full bg-obsidian border-l border-[rgba(212,175,55,0.2)] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-lg font-serif font-bold text-white flex items-center gap-3"><ShoppingBag size={20} className="text-amber-500" /> Your Cart ({items.length})</h2>
-          <button onClick={closeCart} className="bg-white/5 p-2 rounded-full hover:bg-white/10 text-gray-400"><X size={18} /></button>
+          <h2 className="text-lg font-serif font-bold text-ivory flex items-center gap-3">
+            <ShoppingBag size={20} className="text-gold-primary" /> Your Cart ({items.length})
+          </h2>
+          <button onClick={closeCart} className="bg-charcoal p-2 rounded-md hover:bg-charcoal-light text-muted-gold transition"><X size={18} /></button>
         </div>
+        
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {items.length === 0 && <p className="text-center text-gray-500 mt-20 font-medium">Your cart is empty.</p>}
+          {items.length === 0 && <p className="text-center text-muted-gold mt-20 font-light">Your cart is empty.</p>}
           {items.map((item) => (
             <div key={item.cartItemId} className="flex gap-4 border-b border-white/5 pb-6">
-              <img src={item.images?.[0]} alt="" className="w-24 h-24 object-cover rounded-xl bg-[#121212] border border-white/10" />
+              <img src={item.images?.[0]} alt="" className="w-24 h-24 object-cover rounded-md bg-charcoal border border-white/10" />
               <div className="flex-1">
-                <p className="text-sm font-bold text-white line-clamp-2">{item.title}</p>
-                {item.size && <p className="text-xs text-amber-500 font-bold mt-1 uppercase tracking-wider">Size: {item.size}</p>}
-                <p className="text-amber-500 font-black mt-2 text-lg">₹{item.price}</p>
+                <p className="text-sm font-serif font-semibold text-ivory line-clamp-2">{item.title}</p>
+                {item.size && <p className="text-[10px] text-gold-primary font-bold mt-1 uppercase tracking-widest">Size: {item.size}</p>}
+                <p className="text-gold-primary font-bold mt-2 text-lg">₹{item.price}</p>
                 <div className="flex items-center gap-3 mt-3">
-                  <div className="flex items-center border border-white/10 rounded-lg bg-white/5">
-                    <button onClick={() => updateQty(item.cartItemId, item.quantity - 1)} className="p-1.5 text-gray-400 hover:text-white"><Minus size={14} /></button>
-                    <span className="text-sm font-bold text-white w-8 text-center">{item.quantity}</span>
-                    <button onClick={() => updateQty(item.cartItemId, item.quantity + 1)} className="p-1.5 text-gray-400 hover:text-white"><Plus size={14} /></button>
+                  <div className="flex items-center border border-white/10 rounded-md bg-charcoal">
+                    <button onClick={() => updateQty(item.cartItemId, item.quantity - 1)} className="p-1.5 text-muted-gold hover:text-ivory"><Minus size={14} /></button>
+                    <span className="text-sm font-bold text-ivory w-8 text-center">{item.quantity}</span>
+                    <button onClick={() => updateQty(item.cartItemId, item.quantity + 1)} className="p-1.5 text-muted-gold hover:text-ivory"><Plus size={14} /></button>
                   </div>
-                  <button onClick={() => removeItem(item.cartItemId)} className="text-[10px] text-red-500 uppercase tracking-widest font-bold hover:text-red-400">Remove</button>
+                  <button onClick={() => removeItem(item.cartItemId)} className="text-[10px] text-red-400 uppercase tracking-widest font-bold hover:text-red-300">Remove</button>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
         {items.length > 0 && (
-          <div className="p-6 border-t border-white/10 space-y-5 bg-[#121212]">
-            <div className="flex justify-between text-lg font-bold text-white"><span className="text-gray-400 text-sm uppercase tracking-widest">Total</span><span className="text-amber-500 text-2xl font-black">₹{subtotal.toFixed(2)}</span></div>
+          <div className="p-6 border-t border-white/10 space-y-5 bg-charcoal">
+            <div className="flex justify-between text-lg font-bold text-ivory">
+              <span className="text-muted-gold text-sm uppercase tracking-widest mt-1">Total</span>
+              <span className="text-gold-primary text-2xl font-serif">₹{subtotal.toFixed(2)}</span>
+            </div>
+            
             {!showCheckout ? (
-              <button onClick={() => setShowCheckout(true)} className="w-full bg-amber-500 text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-amber-400 transition shadow-[0_0_20px_rgba(245,158,11,0.2)]">Proceed to Checkout</button>
+              <button onClick={() => setShowCheckout(true)} className="w-full gold-gradient-bg py-4 rounded-md font-bold text-sm uppercase tracking-widest hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition">
+                Proceed to Checkout
+              </button>
             ) : (
               <form onSubmit={handleCheckout} className="space-y-4">
-                <input placeholder="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 text-sm text-white placeholder-gray-600 focus:border-amber-500 outline-none transition" />
-                {errors.name && <p className="text-red-500 text-xs font-bold">{errors.name}</p>}
-                <input placeholder="WhatsApp Number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 text-sm text-white placeholder-gray-600 focus:border-amber-500 outline-none transition" />
-                {errors.phone && <p className="text-red-500 text-xs font-bold">{errors.phone}</p>}
-                <textarea placeholder="Delivery Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} rows={3} className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3 text-sm text-white placeholder-gray-600 focus:border-amber-500 outline-none transition" />
-                {errors.address && <p className="text-red-500 text-xs font-bold">{errors.address}</p>}
+                <input placeholder="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-obsidian border border-white/10 rounded-md p-3 text-sm text-ivory placeholder-muted-gold focus:border-gold-primary outline-none transition" />
+                {errors.name && <p className="text-red-400 text-xs font-medium">{errors.name}</p>}
                 
-                <button type="submit" disabled={loading} className="w-full bg-white text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest flex justify-center items-center gap-3 disabled:opacity-50 mt-4 hover:bg-gray-200 transition">
+                <input placeholder="WhatsApp Number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full bg-obsidian border border-white/10 rounded-md p-3 text-sm text-ivory placeholder-muted-gold focus:border-gold-primary outline-none transition" />
+                {errors.phone && <p className="text-red-400 text-xs font-medium">{errors.phone}</p>}
+                
+                <textarea placeholder="Delivery Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} rows={3} className="w-full bg-obsidian border border-white/10 rounded-md p-3 text-sm text-ivory placeholder-muted-gold focus:border-gold-primary outline-none transition" />
+                {errors.address && <p className="text-red-400 text-xs font-medium">{errors.address}</p>}
+                
+                <button type="submit" disabled={loading} className="w-full bg-ivory text-obsidian py-4 rounded-md font-bold text-sm uppercase tracking-widest flex justify-center items-center gap-3 disabled:opacity-50 mt-4 hover:bg-gold-light transition">
                   {loading ? <><Loader2 className="animate-spin" size={18} /> Processing...</> : <><CreditCard size={18} /> Pay ₹{subtotal} Securely</>}
                 </button>
               </form>
