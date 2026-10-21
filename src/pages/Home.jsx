@@ -26,7 +26,7 @@ export default function Home() {
     (async () => {
       const { data: prods } = await supabase.from('products').select('*').order('created_at', { ascending: false });
       const { data: cats } = await supabase.from('categories').select('*');
-      const { data: config } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+      const { data: config } = await supabase.from('site_settings').select(`*`).eq(`id`, 1).maybeSingle();
       
       setProducts(prods || []);
       setCategories(cats || []);

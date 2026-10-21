@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
-import { Trash2, ArrowLeft, Loader2, Pencil, Plus, AlertTriangle, PackageSearch } from 'lucide-react';
+import { Trash2, ArrowLeft, Loader2, Pencil, Plus, AlertTriangle, Package } from 'lucide-react';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -67,7 +67,7 @@ export default function AdminProducts() {
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-charcoal border border-white/5 rounded-2xl">
-            <PackageSearch size={48} className="text-muted-gold mb-4 opacity-50" />
+            <Package size={48} className="text-muted-gold mb-4 opacity-50" />
             <h3 className="text-lg font-serif font-bold text-ivory mb-2">No Products Found</h3>
             <p className="text-sm text-muted-gold mb-6">Your store is empty. Start by adding your first product.</p>
             <Link to="/admin/upload" className="bg-white/5 border border-white/10 text-ivory px-6 py-2 rounded-md font-bold text-xs uppercase hover:bg-white/10 transition">

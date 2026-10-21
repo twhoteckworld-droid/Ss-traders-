@@ -22,7 +22,7 @@ export default function AdminSettings() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+      const { data } = await supabase.from('site_settings').select(`*`).eq(`id`, 1).maybeSingle();
       if (data) {
         setCurrentLogo(data.logo_url || '');
         setForm({
