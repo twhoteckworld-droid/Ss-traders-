@@ -2,31 +2,19 @@ import { Link } from 'react-router-dom';
 
 export default function Logo({ isWhite = false }) {
   return (
-    <Link to="/" className="flex items-center gap-2 group">
-      {/* Custom SVG Logo */}
-      <div className={`p-2 rounded-xl transition-colors ${isWhite ? 'bg-white/10' : 'bg-emerald-900'} group-hover:scale-105`}>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          className={`w-6 h-6 ${isWhite ? 'text-amber-400' : 'text-amber-400'}`}
-        >
-          <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"></path>
-          <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"></path>
-          <path d="M16 17h4"></path>
-          <path d="M4 13h4"></path>
-        </svg>
+    <Link to="/" className="flex items-center gap-3 group">
+      {/* Logo Graphic */}
+      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-amber-500 bg-black flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.3)] overflow-hidden relative">
+        {/* Aap yahan apni logo image laga sakte ho: <img src="/logo.png" className="w-full h-full object-cover" /> */}
+        <span className="text-amber-500 font-serif font-black text-xl md:text-2xl tracking-tighter italic">SS</span>
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/20 to-transparent"></div>
       </div>
       <div>
-        <h1 className={`text-xl font-black tracking-tight leading-none ${isWhite ? 'text-white' : 'text-emerald-950'}`}>
+        <h1 className={`text-lg md:text-xl font-serif font-black tracking-widest leading-none ${isWhite ? 'text-white' : 'text-black'}`}>
           SS TRADERS
         </h1>
-        <p className={`text-[8px] uppercase tracking-[0.25em] font-bold mt-0.5 ${isWhite ? 'text-emerald-200' : 'text-emerald-700'}`}>
-          Premium Footwear
+        <p className={`text-[8px] md:text-[9px] uppercase tracking-[0.3em] font-bold mt-1 ${isWhite ? 'text-amber-500' : 'text-amber-600'}`}>
+          Luxury Footwear
         </p>
       </div>
     </Link>
