@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, Package, ShoppingBag, RefreshCw, Layers, Bell, Tag, Trash2 } from 'lucide-react';
+import { LogOut, Package, ShoppingBag, RefreshCw, Layers, Bell, Tag, Trash2, Settings } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
@@ -86,6 +86,9 @@ export default function AdminDashboard() {
           </Link>
           <Link to="/admin/products" className="bg-gray-800 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 active:scale-95 transition shadow-sm">
             <Layers size={24} /> <span className="text-xs font-semibold text-center">Manage Products</span>
+          </Link>
+          <Link to="/admin/settings" className="bg-rose-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 active:scale-95 transition shadow-sm"> 
+            <Settings size={24} /> <span className="text-xs font-semibold text-center">Site Settings</span> 
           </Link>
           <Link to="/admin/categories" className="bg-indigo-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 active:scale-95 transition shadow-sm">
             <Tag size={24} /> <span className="text-xs font-semibold text-center">Manage Categories</span>

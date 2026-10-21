@@ -1,7 +1,18 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Award, Heart, ShieldCheck, Footprints, MapPin, Clock } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function About() {
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+      if (data) setSettings(data);
+    })();
+  }, []);
+
   const mapQuery = encodeURIComponent("SS TRADERS, Mangwain Mohalla 264/12, Himachal Pradesh 175001");
   const mapEmbedUrl = `https://maps.google.com/maps?q=${mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
@@ -105,7 +116,7 @@ export default function About() {
                 ></iframe>
               </div>
               <div className="flex items-start gap-3">
-                <MapPin className="text-amber-500 mt-0.5 shrink-0" size={20} />
+                <MapPin className="text-red-500 mt-0.5 shrink-0" size={20} />
                 <div>
                   <h4 className="font-bold text-white text-sm tracking-wide">SS Traders Mandi</h4>
                   <p className="text-gray-400 text-xs mt-1 font-medium">Mangwain Mohalla 264/12, Himachal Pradesh 175001</p>
@@ -115,7 +126,7 @@ export default function About() {
                   </div>
                 </div>
               </div>
-              <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="mt-5 block w-full text-center border border-amber-500 text-amber-500 font-bold text-xs py-3.5 rounded-xl hover:bg-amber-500 hover:text-black transition uppercase tracking-widest">
+              <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="mt-5 block w-full text-center bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3.5 rounded-xl transition uppercase tracking-widest">
                 Get Directions
               </a>
            </div>
@@ -126,10 +137,10 @@ export default function About() {
           <h3 className="text-xl font-serif font-bold text-white mb-4 tracking-wide">Follow Our Journey</h3>
           <p className="text-gray-500 text-xs mb-6 max-w-sm mx-auto">Get a sneak peek into our latest collections, offers, and behind-the-scenes updates.</p>
           <div className="flex justify-center gap-4">
-             <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition">
+             <a href={settings?.instagram_url || '#'} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-[#121212] border border-white/10 flex items-center justify-center text-[#E1306C] hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white transition-all duration-300">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
              </a>
-             <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition">
+             <a href={settings?.facebook_url || '#'} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-[#121212] border border-white/10 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all duration-300">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
              </a>
           </div>

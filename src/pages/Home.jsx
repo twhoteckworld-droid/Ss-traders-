@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail, Star, Zap, Award } from 'lucide-react';
+import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail, Star, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
@@ -67,20 +67,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black pb-10 font-sans text-white selection:bg-amber-500 selection:text-black">
       
-      {/* HEADER - SPARTA STYLE */}
+      {/* HEADER */}
       <header className="sticky top-0 z-40 bg-black border-b-2 border-amber-600/50 shadow-[0_4px_30px_rgba(212,175,55,0.1)]">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
           {!showSearch ? (
             <>
               <Logo isWhite={true} />
-              
-              {/* Desktop Nav Links (Optional, for look) */}
-              <nav className="hidden md:flex items-center gap-8 text-xs font-bold tracking-widest text-gray-400">
-                <Link to="/" className="hover:text-amber-500 transition-colors">HOME</Link>
-                <Link to="/about" className="hover:text-amber-500 transition-colors">STORY</Link>
-                <Link to="/category/sneakers" className="hover:text-amber-500 transition-colors">COLLECTION</Link>
-              </nav>
-
               <div className="flex items-center gap-5">
                 <Search onClick={() => setShowSearch(true)} size={20} className="text-gray-300 cursor-pointer hover:text-amber-500 transition" />
                 <button onClick={openCart} className="relative group">
@@ -104,11 +96,10 @@ export default function Home() {
       </header>
 
       <main className="max-w-[1440px] mx-auto">
-        {/* HERO SECTION - SPARTA STYLE */}
+        {/* HERO SECTION */}
         {!showSearch && (
-          <section className="relative min-h-[70vh] flex items-center overflow-hidden border-b border-white/10 bg-gradient-to-r from-black via-black/80 to-transparent">
+          <section className="relative min-h-[60vh] flex items-center overflow-hidden border-b border-white/10 bg-gradient-to-r from-black via-black/80 to-transparent">
             <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1500&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-luminosity" />
-            
             <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
               <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
                 <div className="inline-flex items-center gap-2 border border-amber-500/30 bg-amber-500/10 px-3 py-1 rounded-sm mb-6">
@@ -119,35 +110,28 @@ export default function Home() {
                   Step Into <br/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-500 to-amber-700">Luxury.</span>
                 </h2>
-                <p className="text-gray-400 text-sm md:text-base mb-8 max-w-md border-l-2 border-amber-600 pl-4">
-                  Engineered for style, comfort, and dominance. Discover premium footwear crafted for those who walk ahead of the curve.
-                </p>
-                <div className="flex gap-4">
-                  <button onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-amber-600 to-amber-400 text-black font-black uppercase tracking-widest text-xs px-8 py-4 rounded-sm shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-all active:scale-95 border border-amber-300">
-                    Shop Collection
-                  </button>
-                </div>
+                <button onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-amber-600 to-amber-400 text-black font-black uppercase tracking-widest text-xs px-8 py-4 rounded-sm shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-all active:scale-95 border border-amber-300">
+                  Shop Collection
+                </button>
               </motion.div>
             </div>
           </section>
         )}
 
-        {/* TRUST BADGES - SPARTA GRID STYLE */}
+        {/* TRUST BADGES */}
         {!showSearch && (
-          <section className="bg-[#0a0a0a] border-b border-white/10 py-8">
-            <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-3 gap-4 md:gap-8">
+          <section className="bg-[#0a0a0a] border-b border-white/10 py-6">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-3 gap-2 md:gap-6">
               {[
                 { icon: Truck, title: 'SAFE SHIPPING', sub: 'Secure Delivery' }, 
                 { icon: ShieldCheck, title: 'SECURE PAYMENT', sub: '100% Protected' }, 
                 { icon: Headphones, title: '24/7 SUPPORT', sub: 'Always Available' }
               ].map((item, i) => (
-                <div key={i} className="flex flex-col md:flex-row items-center text-center md:text-left gap-3 md:gap-5 border border-white/5 bg-[#121212] p-4 rounded-sm shadow-lg group hover:border-amber-500/40 transition">
-                  <div className="p-2 md:p-3 bg-black border border-amber-500/20 rounded-sm group-hover:bg-amber-500/10 transition">
-                    <item.icon size={22} className="text-amber-500" />
-                  </div>
+                <div key={i} className="flex flex-col md:flex-row items-center text-center md:text-left gap-2 md:gap-4 border border-white/5 bg-[#121212] p-3 rounded-sm">
+                  <item.icon size={20} className="text-amber-500" />
                   <div>
-                    <h4 className="text-[10px] md:text-xs font-black text-white tracking-widest">{item.title}</h4>
-                    <p className="text-[9px] md:text-[10px] text-gray-500 uppercase mt-1">{item.sub}</p>
+                    <h4 className="text-[9px] md:text-xs font-black text-white tracking-widest">{item.title}</h4>
+                    <p className="text-[8px] md:text-[10px] text-gray-500 uppercase mt-0.5">{item.sub}</p>
                   </div>
                 </div>
               ))}
@@ -155,32 +139,49 @@ export default function Home() {
           </section>
         )}
 
-        {/* CATEGORIES - METALLIC PILLS */}
+        {/* RECTANGULAR HORIZONTAL SLIDER FOR CATEGORIES (BANNER STYLE) */}
         {!showSearch && categories.length > 0 && (
-          <section className="mt-12 px-4 md:px-8 max-w-7xl mx-auto">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-px bg-gradient-to-r from-amber-600 to-transparent flex-1"></div>
-              <h3 className="text-xl md:text-2xl font-serif font-black text-white tracking-widest uppercase">Categories</h3>
-              <div className="h-px bg-gradient-to-l from-amber-600 to-transparent flex-1"></div>
+          <section className="mt-10 px-4 md:px-8 max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl md:text-2xl font-serif font-black text-white tracking-widest uppercase">Shop By Categories</h3>
+              <div className="h-px bg-amber-500/30 flex-1 ml-4 hidden md:block"></div>
             </div>
             
-            <div className="flex gap-3 overflow-x-auto pb-6 pt-2 scrollbar-hide snap-x">
+            {/* Horizontal Scrollable Container */}
+            <div className="flex gap-4 overflow-x-auto pb-4 pt-2 scrollbar-hide snap-x">
+              
+              {/* 'All' Banner */}
               <button
                 onClick={() => setActiveCategory('all')}
-                className={`relative flex-shrink-0 snap-start rounded-sm px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${activeCategory === 'all' ? 'bg-gradient-to-b from-amber-500 to-amber-700 text-black border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'bg-[#121212] text-gray-400 border-white/10 hover:border-amber-500/50'}`}
+                className={`relative flex-shrink-0 snap-start w-40 md:w-56 h-24 md:h-32 rounded-md overflow-hidden border transition-all duration-300 bg-[#121212] group ${activeCategory === 'all' ? 'border-amber-500 ring-2 ring-amber-500/50' : 'border-white/10 hover:border-amber-500/50'}`}
               >
-                All Shoes
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-600/20 to-black flex flex-col items-center justify-center">
+                  <span className="text-lg md:text-xl font-serif font-black text-white uppercase tracking-widest text-center px-2">All Shoes</span>
+                  <div className="w-6 h-0.5 bg-amber-500 mt-2"></div>
+                </div>
               </button>
 
+              {/* Dynamic Banners (Client Images) */}
               {categories.map((cat) => {
                 const isActive = activeCategory === cat.slug;
                 return (
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.slug)}
-                    className={`relative flex-shrink-0 snap-start rounded-sm px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 border ${isActive ? 'bg-gradient-to-b from-amber-500 to-amber-700 text-black border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'bg-[#121212] text-gray-400 border-white/10 hover:border-amber-500/50'}`}
+                    className={`relative flex-shrink-0 snap-start w-40 md:w-56 h-24 md:h-32 rounded-md overflow-hidden border transition-all duration-300 group ${isActive ? 'border-amber-500 ring-2 ring-amber-500/50' : 'border-white/10 hover:border-amber-500/50'}`}
                   >
-                    {cat.name}
+                    {/* Image with object-cover to keep aspect ratio */}
+                    <img 
+                      src={cat.image_url || `https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=500&auto=format&fit=crop`} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
+                      alt={cat.name} 
+                    />
+                    {/* Dark Gradient Overlay for Text Readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                    
+                    <span className="absolute bottom-2 left-0 right-0 text-center text-sm md:text-base font-serif font-black text-white uppercase tracking-widest drop-shadow-md">
+                      {cat.name}
+                    </span>
                   </button>
                 );
               })}
@@ -188,7 +189,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* PRODUCTS GRID - SPARTA CARDS */}
+        {/* PRODUCTS GRID */}
         <section id="shop" className="mt-8 px-4 md:px-8 max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
             <h3 className="text-2xl md:text-3xl font-serif font-black text-white tracking-wider uppercase">
@@ -228,12 +229,12 @@ export default function Home() {
                     )}
                   </Link>
                   
-                  <div className="p-4 flex flex-col flex-1 text-center">
-                    <p className="text-[9px] text-amber-500 uppercase font-bold tracking-[0.2em] mb-2">{p.category}</p>
+                  <div className="p-3 md:p-4 flex flex-col flex-1 text-center">
+                    <p className="text-[9px] text-amber-500 uppercase font-bold tracking-[0.2em] mb-1">{p.category}</p>
                     <Link to={p.stock > 0 ? `/product/${p.id}` : '#'}>
                       <h4 className="text-sm font-bold text-white line-clamp-1 leading-tight group-hover:text-amber-500 transition-colors">{p.title}</h4>
                     </Link>
-                    <div className="flex items-center justify-center gap-3 mt-2">
+                    <div className="flex items-center justify-center gap-2 mt-2">
                       <span className="text-base font-black text-white">₹{p.price}</span>
                       {p.original_price && <span className="text-[11px] text-gray-600 line-through font-medium">₹{p.original_price}</span>}
                     </div>
@@ -244,10 +245,9 @@ export default function Home() {
         </section>
       </main>
 
-      {/* FOOTER - PREMIUM WITH REAL SOCIAL COLORS */}
+      {/* FOOTER (SAME AS BEFORE) */}
       <footer className="mt-20 bg-[#050505] text-white border-t border-amber-600/30 pt-16 pb-12 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          
           <div className="lg:col-span-1">
             <Logo isWhite={true} />
             <p className="text-gray-500 text-xs mt-6 max-w-xs leading-relaxed font-medium uppercase tracking-wider">Elevate your style with SS Traders. Crafted for the bold.</p>
@@ -283,28 +283,13 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-          
-          {/* REAL BRAND COLORS FOR SOCIAL ICONS (Play Store Style) */}
           <div className="flex gap-4">
-             {/* Call - Green */}
-             <a href="tel:+917018721886" title="Call Us" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#34A853] hover:bg-[#34A853] hover:text-white hover:border-[#34A853] transition-all duration-300">
-               <Phone size={18} />
-             </a>
-             
-             {/* Instagram - Gradient */}
-             <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" title="Instagram" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#E1306C] hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white hover:border-transparent transition-all duration-300">
+             <a href="tel:+917018721886" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#34A853] hover:bg-[#34A853] hover:text-white transition-all duration-300"><Phone size={18} /></a>
+             <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#E1306C] hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] hover:text-white transition-all duration-300">
                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
              </a>
-
-             {/* Facebook - Blue */}
-             <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" title="Facebook" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all duration-300">
-               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-             </a>
-             
-             {/* Email - Red */}
-             <a href="mailto:itskunalthakurr@gmail.com" title="Email Us" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#EA4335] hover:bg-[#EA4335] hover:text-white hover:border-[#EA4335] transition-all duration-300">
-               <Mail size={18} />
-             </a>
+             <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+             <a href="mailto:itskunalthakurr@gmail.com" className="w-10 h-10 rounded-sm bg-[#0a0a0a] border border-white/10 flex items-center justify-center text-[#EA4335] hover:bg-[#EA4335] hover:text-white transition-all duration-300"><Mail size={18} /></a>
           </div>
           <div className="text-[10px] text-gray-600 font-bold tracking-widest uppercase">
             <p>© 2024 SS Traders. All Rights Reserved.</p>

@@ -14,6 +14,7 @@ import AdminProductUpload from './pages/admin/AdminProductUpload';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminEditProduct from './pages/admin/AdminEditProduct';
+import AdminSettings from './pages/admin/AdminSettings'; // Naya Import
 import CartDrawer from './components/CartDrawer';
 import { useCartStore } from './store/cartStore';
 
@@ -48,9 +49,9 @@ export default function App() {
         <Route path="/admin/products" element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
         <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
         <Route path="/admin/edit/:id" element={<ProtectedRoute><AdminEditProduct /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} /> {/* Naya Route */}
       </Routes>
       
-      {/* Yahan CartDrawer render ho raha hai */}
       <CartDrawer />
       
       {count > 0 && (
