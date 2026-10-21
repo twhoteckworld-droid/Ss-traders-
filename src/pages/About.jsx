@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Award, Heart, ShieldCheck, Footprints, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, Award, Heart, ShieldCheck, Footprints, MapPin, Clock, Share2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function About() {
@@ -61,39 +61,50 @@ export default function About() {
           </div>
         </section>
 
-        {/* Values Section */}
-        <section className="mt-10">
-          <h3 className="text-xl font-serif font-bold text-white mb-6 text-center tracking-wide">Why Choose Us?</h3>
-          
-          <div className="space-y-4">
-            <div className="bg-[#121212] p-5 rounded-2xl shadow-sm border border-white/5 flex gap-5 items-start">
-              <div className="bg-amber-500/10 p-3 rounded-xl shrink-0 border border-amber-500/20">
-                <Award className="text-amber-500" size={24} />
+        {/* VALUES SUB-TABLE SECTION (Naya Design) */}
+        <section className="mt-12">
+          <div className="bg-[#121212] border border-amber-500/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+            {/* Top Gold Line */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+            
+            <h3 className="text-xl font-serif font-bold text-white mb-6 text-center tracking-widest uppercase">Why Choose Us?</h3>
+            
+            {/* Sub-Table Container */}
+            <div className="border border-white/10 rounded-2xl overflow-hidden bg-black/40 divide-y divide-white/10">
+              
+              {/* Row 1 */}
+              <div className="p-5 flex gap-5 items-start hover:bg-white/5 transition duration-300">
+                <div className="bg-amber-500/10 p-3 rounded-xl shrink-0 border border-amber-500/20">
+                  <Award className="text-amber-500" size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm tracking-wide">100% Original Products</h4>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">We source directly from trusted manufacturers to ensure genuine quality.</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-bold text-white text-sm tracking-wide">100% Original Products</h4>
-                <p className="text-xs text-gray-500 mt-2 font-medium leading-relaxed">We source directly from trusted manufacturers to ensure you get genuine quality every time.</p>
-              </div>
-            </div>
 
-            <div className="bg-[#121212] p-5 rounded-2xl shadow-sm border border-white/5 flex gap-5 items-start">
-              <div className="bg-amber-500/10 p-3 rounded-xl shrink-0 border border-amber-500/20">
-                <ShieldCheck className="text-amber-500" size={24} />
+              {/* Row 2 */}
+              <div className="p-5 flex gap-5 items-start hover:bg-white/5 transition duration-300">
+                <div className="bg-amber-500/10 p-3 rounded-xl shrink-0 border border-amber-500/20">
+                  <ShieldCheck className="text-amber-500" size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm tracking-wide">Secure & Easy Shopping</h4>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">Shop seamlessly with our encrypted payment gateway and quick checkout.</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-bold text-white text-sm tracking-wide">Secure & Easy Shopping</h4>
-                <p className="text-xs text-gray-500 mt-2 font-medium leading-relaxed">Shop seamlessly with our encrypted payment gateway and quick checkout process.</p>
-              </div>
-            </div>
 
-            <div className="bg-[#121212] p-5 rounded-2xl shadow-sm border border-white/5 flex gap-5 items-start">
-              <div className="bg-amber-500/10 p-3 rounded-xl shrink-0 border border-amber-500/20">
-                <Heart className="text-amber-500" size={24} />
+              {/* Row 3 */}
+              <div className="p-5 flex gap-5 items-start hover:bg-white/5 transition duration-300">
+                <div className="bg-amber-500/10 p-3 rounded-xl shrink-0 border border-amber-500/20">
+                  <Heart className="text-amber-500" size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm tracking-wide">Customer First Approach</h4>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">Our support team is always ready to help you with sizes and queries.</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-bold text-white text-sm tracking-wide">Customer First Approach</h4>
-                <p className="text-xs text-gray-500 mt-2 font-medium leading-relaxed">Our support team is always ready to help you with sizes, exchanges, and any queries.</p>
-              </div>
+
             </div>
           </div>
         </section>
