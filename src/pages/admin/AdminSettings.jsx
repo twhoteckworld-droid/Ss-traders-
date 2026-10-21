@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload, Loader2, Image as ImageIcon, Phone, Mail, Facebook, Instagram } from 'lucide-react';
+import { ArrowLeft, Upload, Loader2, Image as ImageIcon, Phone, Mail, Share2 } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 
 export default function AdminSettings() {
@@ -126,7 +126,7 @@ export default function AdminSettings() {
 
           {/* Social Media */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Facebook size={20} /> Social Media Links</h2>
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Share2 size={20} /> Social Media Links</h2>
             <div>
               <label className="text-xs font-semibold text-gray-600 mb-1 block">Facebook URL</label>
               <input type="url" value={form.facebook_url} onChange={(e) => setForm({ ...form, facebook_url: e.target.value })} className="w-full border rounded-lg p-3 text-sm" placeholder="https://facebook.com/..." />
