@@ -12,6 +12,11 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   
+  // Size Modal ke liye states
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('');
+
+  const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
   const cartCount = useCartStore((s) => s.items.length);
 
@@ -28,9 +33,31 @@ export default function Home() {
   const filteredProducts = products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleAddClick = (e, product) => {
-    e.preventDefault(); 
-    if (product.stock <= 0) return alert('This product is currently out of stock.');
-    window.location.href = `/product/${product.id}`;
+    e.preventDefault();
+    if (product.stock <= 0) return alert('This product is out of stock.');
+    
+    // Agar product me sizes hain, toh Modal kholo
+    if (product.sizes && product.sizes.length > 0) {
+      setSelectedProduct(product);
+      setSelectedSize('');
+    } else {
+      // Agar size nahi hai, toh direct add kardo
+      addItem(product);
+      openCart();
+    }
+  };
+
+  const handleSizeConfirm = () => {
+    if (!selectedSize) return alert('Please select a size');
+    
+    // Size out-of-stock check
+    if (selectedProduct.size_stock && selectedProduct.size_stock[selectedSize] !== undefined && selectedProduct.size_stock[selectedSize] <= 0) {
+      return alert('This size is out of stock!');
+    }
+
+    addItem(selectedProduct, selectedSize);
+    setSelectedProduct(null);
+    openCart();
   };
 
   const mapQuery = encodeURIComponent("SS TRADERS, Mangwain Mohalla 264/12, Himachal Pradesh 175001");
@@ -110,8 +137,10 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4">
             {loading ? <p>Loading...</p> : filteredProducts.length === 0 ? <p className="text-gray-500 text-sm">No shoes found.</p> :
               filteredProducts.map((p) => (
-                <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} key={p.id} className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group relative ${p.stock <= 0 ? 'opacity-70' : ''}`}>
-                  <div className="relative bg-gray-50 aspect-[4/5] overflow-hidden">
+                <div key={p.id} className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group relative ${p.stock <= 0 ? 'opacity-70' : ''}`}>
+                  
+                  {/* Clickable Image aur Title jo Product Page par le jayega */}
+                  <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} className="relative bg-gray-50 aspect-[4/5] overflow-hidden block">
                     <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                     {p.stock <= 0 && (
                       <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[2px]">
@@ -124,15 +153,20 @@ export default function Home() {
                       </div>
                     )}
                     {p.original_price && <span className="absolute top-2 right-2 bg-amber-400 text-emerald-950 text-[10px] font-extrabold px-2 py-1 rounded-sm shadow-sm">{Math.round(((p.original_price - p.price) / p.original_price) * 100)}% OFF</span>}
-                  </div>
+                  </Link>
+                  
                   <div className="p-3 flex flex-col flex-1">
                     <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider mb-1">{p.category}</p>
-                    <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-2">{p.title}</h4>
+                    <Link to={p.stock > 0 ? `/product/${p.id}` : '#'}>
+                      <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-2">{p.title}</h4>
+                    </Link>
                     <div className="mt-auto pt-2 flex items-end justify-between">
                       <div className="flex flex-col">
                         {p.original_price && <span className="text-[11px] text-gray-400 line-through">MRP: ₹{p.original_price}</span>}
                         <span className="text-base font-black text-emerald-950">₹{p.price}</span>
                       </div>
+                      
+                      {/* Naya ADD Button jo popup kholega */}
                       {p.stock > 0 ? (
                         <button onClick={(e) => handleAddClick(e, p)} className="bg-gray-100 text-gray-900 hover:bg-emerald-800 hover:text-white text-[11px] font-bold px-4 py-2 rounded-full active:scale-95 transition-colors">ADD</button>
                       ) : (
@@ -140,11 +174,54 @@ export default function Home() {
                       )}
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
           </div>
         </section>
       </main>
+
+      {/* --- SIZE SELECTION MODAL (Home Page par) --- */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
+          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} className="bg-white w-full max-w-md rounded-t-3xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-black text-lg text-gray-900">Select Size</h3>
+              <button onClick={() => setSelectedProduct(null)} className="p-2 bg-gray-100 rounded-full"><X size={18} /></button>
+            </div>
+            <div className="flex gap-3 mb-6 bg-gray-50 p-3 rounded-xl">
+               <img src={selectedProduct.images?.[0]} className="w-16 h-16 object-cover rounded-lg" />
+               <div>
+                  <p className="text-sm font-bold text-gray-900 line-clamp-2">{selectedProduct.title}</p>
+                  <p className="text-emerald-700 font-bold mt-1">₹{selectedProduct.price}</p>
+               </div>
+            </div>
+            
+            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Available Sizes</p>
+            <div className="grid grid-cols-4 gap-2 mb-8">
+              {selectedProduct.sizes?.map((size) => {
+                const isSizeOut = selectedProduct.size_stock && selectedProduct.size_stock[size] !== undefined && selectedProduct.size_stock[size] <= 0;
+                return (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    disabled={isSizeOut}
+                    className={`relative py-3 rounded-xl border-2 font-bold text-sm transition-all ${
+                      selectedSize === size ? 'border-emerald-700 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    } ${isSizeOut ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}`}
+                  >
+                    {size}
+                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-400 rotate-45 transform origin-center"></div></div>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button onClick={handleSizeConfirm} className="w-full bg-emerald-800 text-white py-4 rounded-xl font-bold text-lg shadow-xl shadow-emerald-900/20 active:scale-95 transition">
+              Add to Cart
+            </button>
+          </motion.div>
+        </div>
+      )}
 
       {/* PREMIUM FOOTER */}
       <footer className="mt-16 bg-emerald-950 text-white rounded-t-[40px] pt-12 pb-24 px-6">
@@ -185,7 +262,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Contact Us & Socials */}
           <div className="border-t border-emerald-900 pt-8 mb-8">
             <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider text-center">Connect With Us</h4>
             <div className="flex flex-col items-center gap-3 text-sm text-emerald-100">
@@ -193,17 +269,8 @@ export default function Home() {
                 <span className="flex items-center gap-2"><Phone size={14} /> +91 7018721886</span>
                 <span className="flex items-center gap-2"><Mail size={14} /> itskunalthakurr@gmail.com</span>
               </div>
-              
-              {/* Facebook Link with SVG */}
-              <a 
-                href="https://www.facebook.com/share/1CEvB1fCnh/" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold transition mt-2 shadow-lg shadow-blue-900/20"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                </svg>
+              <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold transition mt-2 shadow-lg shadow-blue-900/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                 Follow us on Facebook
               </a>
             </div>
