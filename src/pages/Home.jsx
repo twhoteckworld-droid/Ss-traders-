@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ShoppingBag, Search, X, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail, Award, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Search, X, Truck, ShieldCheck, Headphones, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
@@ -9,7 +9,6 @@ import Logo from '../components/Logo';
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -24,13 +23,15 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      const { data: prods } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-      const { data: cats } = await supabase.from('categories').select('*');
-      const { data: config } = await supabase.from('site_settings').select(`*`).eq(`id`, 1).maybeSingle();
-      
-      setProducts(prods || []);
-      setCategories(cats || []);
-      if (config) setSettings(config);
+      try {
+        const { data: prods } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        const { data: cats } = await supabase.from('categories').select('*');
+        
+        setProducts(prods || []);
+        setCategories(cats || []);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
       setLoading(false);
     })();
   }, []);
@@ -44,7 +45,8 @@ export default function Home() {
   }, [products, searchQuery, activeCategory]);
 
   const handleAddClick = (e, product) => {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault(); 
+    e.stopPropagation();
     if (product.stock <= 0) return alert('This product is out of stock.');
     if (product.sizes && product.sizes.length > 0) {
       setSelectedProduct(product);
@@ -144,36 +146,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* AMAZON STYLE HORIZONTAL SLIDER FOR BESTSELLERS */}
-        {!showSearch && activeCategory === 'all' && products.length > 0 && (
-          <div className="mb-8 bg-charcoal p-4 rounded-sm border border-white/5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg md:text-xl font-serif font-bold text-ivory">Trending Now</h2>
-              <button className="text-xs text-gold-primary font-bold hover:underline">See all</button>
-            </div>
-            
-            {/* Sliding Container */}
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-              {products.slice(0, 8).map((p) => (
-                <div key={p.id} className="w-32 md:w-48 flex-shrink-0 snap-start bg-obsidian border border-white/10 rounded-sm p-2 hover:border-gold-primary/50 transition group">
-                   <Link to={`/product/${p.id}`} className="block aspect-square overflow-hidden bg-black mb-2 rounded-sm relative">
-                     <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition" />
-                     {p.original_price && (
-                        <span className="absolute top-1 left-1 bg-gold-primary text-obsidian text-[9px] font-black px-1.5 py-0.5 rounded-sm">
-                          {Math.round(((p.original_price - p.price) / p.original_price) * 100)}% OFF
-                        </span>
-                      )}
-                   </Link>
-                   <Link to={`/product/${p.id}`}>
-                     <h3 className="text-xs text-ivory line-clamp-1 group-hover:text-gold-primary">{p.title}</h3>
-                   </Link>
-                   <p className="text-sm font-bold text-gold-primary mt-1">₹{p.price}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* CATEGORIES BANNER SLIDER */}
         {!showSearch && activeCategory === 'all' && categories.length > 0 && (
           <div className="mb-8">
@@ -237,6 +209,7 @@ export default function Home() {
                         <h3 className="text-xs md:text-sm text-ivory font-medium line-clamp-2 leading-snug group-hover:text-gold-primary transition">{p.title}</h3>
                       </Link>
                       
+                      {/* FIXED: Star icon used here was missing in imports earlier */}
                       <div className="mt-1 flex items-center gap-1">
                          <div className="flex text-gold-primary">
                             <Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" />
