@@ -14,6 +14,7 @@ export default function ProductPage() {
 
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
+  const setBuyNowMode = useCartStore((s) => s.setBuyNowMode);
   const cartCount = useCartStore((s) => s.items.length);
 
   useEffect(() => {
@@ -24,25 +25,41 @@ export default function ProductPage() {
         navigate('/');
       } else {
         setProduct(data);
-        // Agar size hai, toh pehla size select kar lo
         if (data.sizes && data.sizes.length > 0) {
-          setSelectedSize(data.sizes[0]);
+          const firstAvailable = data.sizes.find(s => (data.size_stock?.[s] || 0) > 0);
+          setSelectedSize(firstAvailable || '');
         }
       }
       setLoading(false);
     })();
   }, [id, navigate]);
 
-  const handleAddToCart = () => {
-    if (product.stock <= 0) return alert('Product out of stock!');
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) return alert('Please select a size');
-    
-    // Size stock check karo sirf tab jab data available ho
-    if (selectedSize && product.size_stock && product.size_stock[selectedSize] !== undefined && product.size_stock[selectedSize] <= 0) {
-      return alert('This size is out of stock!');
+  const validateSelection = () => {
+    if (product.stock <= 0) {
+      alert('Product out of stock!');
+      return false;
     }
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert('Please select an available size');
+      return false;
+    }
+    if (selectedSize && (product.size_stock?.[selectedSize] || 0) <= 0) {
+      alert('This size is out of stock!');
+      return false;
+    }
+    return true;
+  };
 
+  const handleAddToCart = () => {
+    if (!validateSelection()) return;
     addItem(product, selectedSize);
+    openCart();
+  };
+
+  const handleBuyNow = () => {
+    if (!validateSelection()) return;
+    addItem(product, selectedSize);
+    setBuyNowMode(true); // Trigger direct checkout in CartDrawer
     openCart();
   };
 
@@ -108,7 +125,6 @@ export default function ProductPage() {
             <h3 className="text-sm font-bold text-gray-900 mb-3">Select Size</h3>
             <div className="grid grid-cols-4 gap-2">
               {product.sizes.map((size) => {
-                // Agar size_stock available hai tabhi out-of-stock check karo
                 const sizeQty = product.size_stock?.[size];
                 const isSizeOut = sizeQty !== undefined ? sizeQty <= 0 : false;
                 
@@ -131,10 +147,13 @@ export default function ProductPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex gap-3 z-40 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
-        <button onClick={openCart} className="flex-1 bg-gray-100 text-gray-900 font-bold py-3.5 rounded-xl">Go to Cart</button>
-        <button onClick={handleAddToCart} disabled={isOutOfStock} className={`flex-[2] font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 ${isOutOfStock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-emerald-800 text-white shadow-lg shadow-emerald-900/20'}`}>
-          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+      {/* Sticky Bottom Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex gap-2 z-40 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
+        <button onClick={handleAddToCart} disabled={isOutOfStock} className={`flex-1 font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 border-2 border-emerald-800 text-emerald-800 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}>
+          Add to Cart
+        </button>
+        <button onClick={handleBuyNow} disabled={isOutOfStock} className={`flex-1 font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 ${isOutOfStock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-emerald-800 text-white shadow-lg shadow-emerald-900/20 active:scale-95'}`}>
+          {isOutOfStock ? 'Sold Out' : 'Buy Now'}
         </button>
       </div>
     </div>

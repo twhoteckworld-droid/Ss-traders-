@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { supabase } from '../lib/supabase';
 import { z } from 'zod';
@@ -22,11 +22,19 @@ const loadRazorpayScript = () => {
 };
 
 export default function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQty, clear } = useCartStore();
+  const { items, isOpen, closeCart, removeItem, updateQty, clear, buyNowMode, setBuyNowMode } = useCartStore();
   const [showCheckout, setShowCheckout] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', address: '' });
   const [errors, setErrors] = useState({});
+
+  // Jab buyNowMode true ho, direct checkout form kholo
+  useEffect(() => {
+    if (buyNowMode && isOpen) {
+      setShowCheckout(true);
+      setBuyNowMode(false);
+    }
+  }, [buyNowMode, isOpen, setBuyNowMode]);
 
   if (!isOpen) return null;
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -48,11 +56,9 @@ export default function CartDrawer() {
       const orderNumber = `SST-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const newOrderId = crypto.randomUUID(); 
 
-      // 1. Load Razorpay Script
       const res = await loadRazorpayScript();
       if (!res) throw new Error('Razorpay SDK failed to load. Check your internet connection.');
 
-      // 2. Create Razorpay Order via Supabase Edge Function
       const createOrderResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-razorpay-order`,
         {
@@ -68,7 +74,6 @@ export default function CartDrawer() {
       const razorpayOrder = await createOrderResponse.json();
       if (razorpayOrder.error) throw new Error(razorpayOrder.error);
 
-      // 3. Open Razorpay Popup
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: razorpayOrder.amount,
@@ -77,7 +82,6 @@ export default function CartDrawer() {
         description: 'Premium Footwear Purchase',
         order_id: razorpayOrder.id,
         handler: async function (response) {
-          // 4. Verify Payment Signature
           const verifyResponse = await fetch(
             `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-razorpay-payment`,
             {
@@ -96,7 +100,6 @@ export default function CartDrawer() {
           const verifyResult = await verifyResponse.json();
 
           if (verifyResult.status === 'success') {
-            // 5. Save Order to Database (Status: Confirmed)
             const { error: orderError } = await supabase.from('orders').insert({
               id: newOrderId,
               order_number: orderNumber,
@@ -120,7 +123,6 @@ export default function CartDrawer() {
             }));
             await supabase.from('order_items').insert(orderItems);
 
-            // 6. Email Notification
             const emailKey = import.meta.env.VITE_WEB3FORMS_KEY;
             if (emailKey) {
               fetch('https://api.web3forms.com/submit', {
@@ -136,7 +138,6 @@ export default function CartDrawer() {
               }).catch(err => console.log(err));
             }
 
-            // 7. WhatsApp Message
             const number = import.meta.env.VITE_WHATSAPP_NUMBER || '917018721886';
             const lines = [
               '🛍️ *NEW PAID ORDER – SS TRADERS*', `📋 Order: *${orderNumber}*`, '──────────────',
@@ -203,7 +204,8 @@ export default function CartDrawer() {
           <div className="p-4 border-t space-y-3 bg-white">
             <div className="flex justify-between text-lg font-bold"><span>Total</span><span>₹{subtotal.toFixed(2)}</span></div>
             {!showCheckout ? (
-              <button onClick={() => setShowCheckout(true)} className="w-full bg-emerald-700 text-white py-3 rounded-xl font-semibold shadow-lg">Checkout</button>
+              // Text "Checkout" ki jagah "Buy Now" kar diya hai
+              <button onClick={() => setShowCheckout(true)} className="w-full bg-emerald-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg shadow-emerald-700/30">Buy Now</button>
             ) : (
               <form onSubmit={handleCheckout} className="space-y-2">
                 <input placeholder="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border rounded-lg p-2 text-sm" />

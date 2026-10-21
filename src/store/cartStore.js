@@ -6,8 +6,11 @@ export const useCartStore = create(
     (set, get) => ({
       items: [],
       isOpen: false,
+      buyNowMode: false, // Naya state
+      
       openCart: () => set({ isOpen: true }),
-      closeCart: () => set({ isOpen: false }),
+      closeCart: () => set({ isOpen: false, buyNowMode: false }),
+      setBuyNowMode: (mode) => set({ buyNowMode: mode }),
       
       addItem: (product, size = null) => set((s) => {
         const cartItemId = size ? `${product.id}-${size}` : product.id;
@@ -35,6 +38,13 @@ export const useCartStore = create(
       clear: () => set({ items: [] }),
       total: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
-    { name: 'ss-traders-cart' }
+    { 
+      name: 'ss-traders-cart',
+      version: 3, // Version badha diya taaki purana cart auto-clear ho jaye
+      migrate: (persistedState, version) => {
+        if (version !== 3) return { items: [] };
+        return persistedState;
+      }
+    }
   )
 );
