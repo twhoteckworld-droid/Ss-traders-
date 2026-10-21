@@ -10,7 +10,6 @@ export const useCartStore = create(
       closeCart: () => set({ isOpen: false }),
       
       addItem: (product, size = null) => set((s) => {
-        // Unique ID: product.id + size (taaki size 7 aur 8 alag count ho)
         const cartItemId = size ? `${product.id}-${size}` : product.id;
         const existing = s.items.find((i) => i.cartItemId === cartItemId);
         
