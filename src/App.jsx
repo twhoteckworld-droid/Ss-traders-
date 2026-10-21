@@ -30,13 +30,10 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// Alag component banaya taaki useLocation use kar sake
 function AppLayout() {
   const openCart = useCartStore((s) => s.openCart);
   const count = useCartStore((s) => s.items.length);
   const location = useLocation();
-
-  // Agar URL /admin se shuru hota hai, toh cart button mat dikhao
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
@@ -62,7 +59,6 @@ function AppLayout() {
       
       <CartDrawer />
       
-      {/* Sirf tab dikhega jab admin route par nahi honge */}
       {count > 0 && !isAdminRoute && (
         <button onClick={openCart} className="fixed bottom-4 left-4 right-4 bg-charcoal border border-gold-primary text-gold-primary py-4 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.2)] font-bold z-40 flex justify-between px-6 uppercase tracking-widest text-sm hover:bg-gold-primary hover:text-obsidian transition">
           <span>View Cart ({count})</span><span>Checkout →</span>
