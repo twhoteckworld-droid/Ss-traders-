@@ -3,20 +3,26 @@ import { Link } from 'react-router-dom';
 export default function Logo({ isWhite = false }) {
   return (
     <Link to="/" className="flex items-center gap-3 group">
-      {/* Logo Graphic */}
-      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-amber-500 bg-black flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.3)] overflow-hidden relative">
-        {/* Aap yahan apni logo image laga sakte ho: <img src="/logo.png" className="w-full h-full object-cover" /> */}
-        <span className="text-amber-500 font-serif font-black text-xl md:text-2xl tracking-tighter italic">SS</span>
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/20 to-transparent"></div>
+      
+      {/* Perfect Circular Logo Image */}
+      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-amber-500 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-transform duration-300 flex-shrink-0 bg-black">
+        <img 
+          src="https://i.supaimg.com/3921581e-9393-4ca3-8664-a7857de8a22d/5980496a-9978-44d3-a15d-0f2cacdaa6ee.jpg" 
+          alt="SS Traders Logo" 
+          className="w-full h-full object-cover"
+        />
       </div>
+
+      {/* Text Branding */}
       <div>
         <h1 className={`text-lg md:text-xl font-serif font-black tracking-widest leading-none ${isWhite ? 'text-white' : 'text-black'}`}>
           SS TRADERS
         </h1>
-        <p className={`text-[8px] md:text-[9px] uppercase tracking-[0.3em] font-bold mt-1 ${isWhite ? 'text-amber-500' : 'text-amber-600'}`}>
+        <p className={`text-[8px] md:text-[9px] uppercase tracking-[0.3em] font-bold mt-1 text-amber-500`}>
           Luxury Footwear
         </p>
       </div>
+      
     </Link>
   );
 }
