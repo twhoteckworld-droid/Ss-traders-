@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Award, Heart, ShieldCheck, Footprints, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, Award, Heart, ShieldCheck, Footprints, MapPin, Clock, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function About() {
@@ -8,7 +8,7 @@ export default function About() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('site_settings').select(`*`).eq(`id`, 1).maybeSingle();
+      const { data } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle();
       if (data) setSettings(data);
     })();
   }, []);
@@ -18,9 +18,9 @@ export default function About() {
   const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
   return (
-    <div className="min-h-screen bg-obsidian pb-24">
-      <header className="sticky top-0 z-30 bg-obsidian/90 backdrop-blur-md border-b border-[rgba(212,175,55,0.15)] px-4 py-4 flex items-center gap-4">
-        <Link to="/" className="p-2.5 bg-charcoal border border-white/10 rounded-full active:scale-95 transition hover:border-gold-primary/50">
+    <div className="min-h-screen bg-obsidian pb-24 font-sans text-ivory">
+      <header className="sticky top-0 z-30 bg-charcoal/90 backdrop-blur-md border-b border-white/10 px-4 py-4 flex items-center gap-4">
+        <Link to="/" className="p-2.5 bg-obsidian border border-white/10 rounded-full hover:border-gold-primary/50 transition">
           <ArrowLeft size={20} className="text-gold-primary" />
         </Link>
         <h1 className="text-xl font-serif font-bold tracking-widest text-ivory uppercase">Our Story</h1>
@@ -40,7 +40,6 @@ export default function About() {
         {/* Story Section */}
         <section className="mt-8">
           <div className="bg-charcoal p-8 rounded-2xl shadow-xl border border-white/5 relative overflow-hidden luxury-card">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gold-primary/5 rounded-full blur-3xl"></div>
             <div className="flex justify-center mb-6 relative z-10">
               <div className="bg-obsidian border border-gold-primary/30 p-4 rounded-full">
                 <Footprints size={36} className="text-gold-primary" />
@@ -122,7 +121,7 @@ export default function About() {
         </section>
 
         {/* Social Media */}
-        <section className="mt-12 text-center">
+        <section className="mt-12 text-center mb-8">
           <h3 className="text-lg font-serif font-bold text-ivory mb-4 tracking-wide">Follow Our Journey</h3>
           <div className="flex justify-center gap-4">
              <a href={settings?.instagram_url || '#'} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-charcoal border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300">
@@ -132,13 +131,6 @@ export default function About() {
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
              </a>
           </div>
-        </section>
-
-        {/* CTA */}
-        <section className="mt-12 text-center mb-8">
-          <Link to="/" className="inline-block bg-transparent border border-gold-primary/50 text-gold-primary hover:bg-gold-primary hover:text-obsidian font-bold uppercase tracking-widest text-xs px-10 py-4 rounded-md transition-all active:scale-95">
-            Explore Collection
-          </Link>
         </section>
       </main>
     </div>
