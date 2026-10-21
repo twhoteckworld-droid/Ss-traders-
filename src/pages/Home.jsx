@@ -68,270 +68,233 @@ export default function Home() {
   const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
   return (
-    <div className="min-h-screen bg-obsidian pb-10">
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-obsidian/90 backdrop-blur-md border-b border-[rgba(212,175,55,0.15)]">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          {!showSearch ? (
-            <>
-              <Logo isWhite={true} />
-              <nav className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-widest text-muted-gold">
-                <Link to="/" className="hover:text-gold-primary transition-colors">HOME</Link>
-                <Link to="/about" className="hover:text-gold-primary transition-colors">OUR STORY</Link>
-                <Link to="/category/sneakers" className="hover:text-gold-primary transition-colors">COLLECTION</Link>
-              </nav>
-              <div className="flex items-center gap-6">
-                <Search onClick={() => setShowSearch(true)} size={20} className="text-ivory cursor-pointer hover:text-gold-primary transition" />
-                <button onClick={openCart} className="relative group">
-                  <ShoppingBag size={20} className="text-ivory group-hover:text-gold-primary transition" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 gold-gradient-bg text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-obsidian">
-                      {cartCount}
-                    </span>
-                  )}
-                </button>
+    <div className="min-h-screen bg-obsidian pb-10 font-sans">
+      {/* HEADER - Full Width Amazon Style */}
+      <header className="sticky top-0 z-40 bg-charcoal border-b border-[rgba(212,175,55,0.15)] shadow-md">
+        <div className="max-w-[1600px] mx-auto px-2 md:px-4 py-2 md:py-3 flex items-center justify-between gap-4">
+          
+          <Logo isWhite={true} />
+          
+          {/* Amazon Style Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-3xl items-center bg-obsidian rounded-md border border-white/20 overflow-hidden focus-within:border-gold-primary transition">
+            <input 
+              type="text" 
+              placeholder="Search premium footwear..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              className="w-full bg-transparent px-4 py-2.5 text-sm text-ivory outline-none placeholder-muted-gold"
+            />
+            <button className="bg-gold-primary text-obsidian px-6 py-2.5 hover:bg-gold-light transition flex items-center justify-center">
+              <Search size={18} />
+            </button>
+          </div>
+
+          {/* Right Icons */}
+          <div className="flex items-center gap-5">
+            <button onClick={() => setShowSearch(true)} className="md:hidden text-ivory"><Search size={22} /></button>
+            <Link to="/admin/login" className="hidden md:block text-xs font-semibold text-muted-gold hover:text-gold-primary transition">
+              Admin
+            </Link>
+            <button onClick={openCart} className="relative flex items-center gap-1 text-ivory hover:text-gold-primary transition">
+              <div className="relative">
+                <ShoppingBag size={24} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-gold-primary text-obsidian text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-obsidian">
+                    {cartCount}
+                  </span>
+                )}
               </div>
-            </>
-          ) : (
-            <div className="flex items-center gap-3 w-full animate-in fade-in text-ivory">
-              <Search size={20} className="text-gold-primary" />
-              <input autoFocus placeholder="Search collection..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent outline-none text-sm font-medium placeholder-muted-gold tracking-wider" />
-              <button onClick={() => { setShowSearch(false); setSearchQuery(''); }} className="p-1.5 bg-charcoal rounded-full hover:bg-charcoal-light"><X size={16} /></button>
-            </div>
-          )}
+              <span className="hidden md:block font-bold text-sm mt-1">Cart</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Search Overlay */}
+        {showSearch && (
+          <div className="md:hidden absolute top-0 left-0 w-full h-full bg-charcoal flex items-center px-4 gap-2 z-50">
+            <input autoFocus placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-obsidian border border-white/20 text-ivory px-3 py-2 rounded-md outline-none focus:border-gold-primary" />
+            <button onClick={() => { setShowSearch(false); setSearchQuery(''); }} className="p-2 bg-white/10 rounded-md text-ivory"><X size={20} /></button>
+          </div>
+        )}
+
+        {/* Sub-Navbar (Categories) */}
+        <div className="bg-obsidian-light border-t border-white/5 overflow-x-auto scrollbar-hide">
+          <div className="max-w-[1600px] mx-auto px-2 md:px-4 flex items-center gap-6 text-xs font-medium text-muted-gold py-2">
+            <button onClick={() => setActiveCategory('all')} className="hover:text-gold-primary whitespace-nowrap">All</button>
+            {categories.map((cat) => (
+              <button key={cat.id} onClick={() => setActiveCategory(cat.slug)} className="hover:text-gold-primary whitespace-nowrap capitalize">
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
-      <main className="max-w-[1440px] mx-auto">
-        {/* HERO SECTION */}
-        {!showSearch && (
-          <section className="relative min-h-[75vh] flex items-center overflow-hidden border-b border-[rgba(212,175,55,0.1)]">
-            <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1500&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-luminosity" />
-            <div className="absolute inset-0 bg-gradient-to-r from-obsidian via-obsidian/80 to-transparent" />
-            
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-8">
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-2xl">
-                <span className="text-xs font-bold uppercase tracking-[0.25em] text-gold-primary mb-4 block">The Gold Standard</span>
-                <h1 className="text-5xl md:text-7xl font-serif font-bold text-ivory leading-[1.1] mb-6">
-                  Step Into <br/>
-                  <span className="gold-gradient-text">Luxury.</span>
-                </h1>
-                <p className="text-muted-gold text-sm md:text-base mb-10 max-w-md leading-relaxed">
-                  Discover a collection crafted for those who demand perfection. Premium materials, timeless design, unmatched comfort.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <button onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })} className="gold-gradient-bg font-semibold text-xs uppercase tracking-widest px-8 py-4 rounded-md shadow-[0_0_20px_rgba(212,175,55,0.15)] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all active:scale-95 flex items-center gap-2">
-                    Shop Collection <ArrowRight size={16} />
-                  </button>
-                  <button onClick={() => window.location.href='/about'} className="bg-transparent border border-gold-primary/50 text-ivory font-semibold text-xs uppercase tracking-widest px-8 py-4 rounded-md hover:border-gold-primary hover:text-gold-primary transition-all active:scale-95">
-                    Our Story
-                  </button>
-                </div>
-              </motion.div>
+      <main className="max-w-[1600px] mx-auto px-2 md:px-4 mt-4">
+        
+        {/* HERO BANNER - Amazon Style Full Width */}
+        {!showSearch && activeCategory === 'all' && searchQuery === '' && (
+          <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden border border-white/10 rounded-sm mb-6">
+            <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-obsidian via-obsidian/70 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-3xl">
+              <h1 className="text-4xl md:text-6xl font-serif font-bold text-ivory mb-4 leading-tight">Step Into <span className="gold-gradient-text">Luxury.</span></h1>
+              <p className="text-muted-gold text-sm md:text-base mb-6 hidden md:block max-w-lg">Discover a collection crafted for those who demand perfection. Premium materials, timeless design.</p>
+              <button onClick={() => document.getElementById('product-grid').scrollIntoView({ behavior: 'smooth' })} className="w-max gold-gradient-bg font-bold text-xs uppercase tracking-widest px-8 py-3 rounded-sm shadow-md hover:opacity-90 transition">
+                Shop Now
+              </button>
             </div>
-          </section>
+          </div>
         )}
 
         {/* TRUST BADGES */}
         {!showSearch && (
-          <section className="bg-charcoal py-8 border-b border-[rgba(212,175,55,0.1)]">
-            <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-3 gap-4">
-              {[
-                { icon: Truck, title: 'SAFE SHIPPING', sub: 'Secure Delivery' }, 
-                { icon: ShieldCheck, title: 'SECURE PAYMENT', sub: '100% Protected' }, 
-                { icon: Headphones, title: '24/7 SUPPORT', sub: 'Always Available' }
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col md:flex-row items-center text-center md:text-left gap-3 luxury-card p-4">
-                  <item.icon size={22} className="text-gold-primary" />
-                  <div>
-                    <h4 className="text-[10px] md:text-xs font-bold text-ivory tracking-widest">{item.title}</h4>
-                    <p className="text-[9px] text-muted-gold uppercase mt-1">{item.sub}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+          <div className="grid grid-cols-3 gap-2 md:gap-4 mb-6">
+            {[
+              { icon: Truck, title: 'Safe Shipping' }, 
+              { icon: ShieldCheck, title: 'Secure Payment' }, 
+              { icon: Headphones, title: '24/7 Support' }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-center gap-2 md:gap-3 bg-charcoal p-3 border border-white/5 rounded-sm">
+                <item.icon size={20} className="text-gold-primary" />
+                <span className="text-[10px] md:text-xs font-bold text-ivory uppercase tracking-wider">{item.title}</span>
+              </div>
+            ))}
+          </div>
         )}
 
-        {/* CATEGORIES */}
-        {!showSearch && categories.length > 0 && (
-          <section className="mt-16 px-4 md:px-8 max-w-7xl mx-auto">
-            <div className="flex items-center gap-6 mb-8">
-              <h2 className="text-2xl font-serif font-bold text-ivory tracking-wide">Shop By Category</h2>
-              <div className="h-px bg-gradient-to-r from-gold-primary/50 to-transparent flex-1"></div>
+        {/* CATEGORIES BANNER SLIDER */}
+        {!showSearch && activeCategory === 'all' && categories.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg md:text-xl font-serif font-bold text-ivory mb-4">Shop By Category</h2>
+            <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.slug)}
+                  className={`relative flex-shrink-0 snap-start w-32 md:w-48 h-20 md:h-28 rounded-md overflow-hidden border border-white/10 hover:border-gold-primary transition-all group`}
+                >
+                  <img src={cat.image_url || `https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=500&auto=format&fit=crop`} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-110 transition duration-500" alt={cat.name} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-transparent"></div>
+                  <span className="absolute bottom-2 left-0 right-0 text-center text-[10px] md:text-xs font-bold text-ivory uppercase tracking-widest">{cat.name}</span>
+                </button>
+              ))}
             </div>
-            
-            <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x">
-              <button
-                onClick={() => setActiveCategory('all')}
-                className={`relative flex-shrink-0 snap-start w-40 md:w-56 h-24 md:h-32 rounded-lg overflow-hidden border transition-all duration-300 bg-charcoal ${activeCategory === 'all' ? 'border-gold-primary ring-2 ring-gold-primary/30' : 'border-white/5 hover:border-gold-primary/50'}`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-gold-primary/10 to-transparent flex flex-col items-center justify-center">
-                  <span className="text-lg md:text-xl font-serif font-bold text-ivory uppercase tracking-widest">All Shoes</span>
-                </div>
-              </button>
+          </div>
+        )}
 
-              {categories.map((cat) => {
-                const isActive = activeCategory === cat.slug;
+        {/* AMAZON STYLE PRODUCT GRID (DENSE) */}
+        <div id="product-grid" className="bg-charcoal p-3 md:p-6 border border-white/5 rounded-sm shadow-lg">
+          <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+            <h2 className="text-xl md:text-2xl font-serif font-bold text-ivory">
+              {searchQuery ? `Results for "${searchQuery}"` : activeCategory === 'all' ? 'Featured Products' : `${activeCategory.replace('-', ' ')} Collection`}
+            </h2>
+            <span className="text-xs text-gold-primary font-bold">{filteredProducts.length} items</span>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
+              {[...Array(12)].map((_, i) => <div key={i} className="animate-pulse bg-obsidian h-64 rounded-sm"></div>)}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <p className="text-muted-gold text-center py-10">No products found in this section.</p>
+          ) : (
+            /* The Grid: 2 cols mobile, 4 tablet, 5 laptop, 6 desktop */
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 md:gap-4">
+              {filteredProducts.map((p) => {
+                const isOut = p.stock <= 0;
                 return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.slug)}
-                    className={`relative flex-shrink-0 snap-start w-40 md:w-56 h-24 md:h-32 rounded-lg overflow-hidden border transition-all duration-300 group ${isActive ? 'border-gold-primary ring-2 ring-gold-primary/30' : 'border-white/5 hover:border-gold-primary/50'}`}
-                  >
-                    <img 
-                      src={cat.image_url || `https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=500&auto=format&fit=crop`} 
-                      className="w-full h-full object-cover group-hover:scale-110 transition duration-700 opacity-60 group-hover:opacity-80" 
-                      alt={cat.name} 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
-                    <span className="absolute bottom-3 left-0 right-0 text-center text-sm md:text-base font-serif font-bold text-ivory uppercase tracking-widest drop-shadow-md">
-                      {cat.name}
-                    </span>
-                  </button>
+                  <div key={p.id} className="bg-obsidian border border-white/10 rounded-sm overflow-hidden flex flex-col hover:border-gold-primary/50 hover:shadow-[0_0_15px_rgba(212,175,55,0.1)] transition group">
+                    
+                    <Link to={isOut ? '#' : `/product/${p.id}`} className="relative aspect-square block overflow-hidden bg-black">
+                      <img src={p.images?.[0]} className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${isOut ? 'opacity-50 grayscale' : ''}`} />
+                      
+                      {isOut && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                          <span className="text-[10px] font-bold text-red-500 border border-red-500 px-2 py-1 bg-obsidian rounded-sm">SOLD OUT</span>
+                        </div>
+                      )}
+                      
+                      {p.original_price && !isOut && (
+                        <span className="absolute top-1 left-1 bg-gold-primary text-obsidian text-[9px] font-black px-1.5 py-0.5 rounded-sm">
+                          {Math.round(((p.original_price - p.price) / p.original_price) * 100)}% OFF
+                        </span>
+                      )}
+                    </Link>
+
+                    <div className="p-2 md:p-3 flex flex-col flex-1">
+                      <Link to={isOut ? '#' : `/product/${p.id}`}>
+                        <h3 className="text-xs md:text-sm text-ivory font-medium line-clamp-2 leading-snug group-hover:text-gold-primary transition">{p.title}</h3>
+                      </Link>
+                      
+                      <div className="mt-1 flex items-center gap-1">
+                         <div className="flex text-gold-primary">
+                            <Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" />
+                         </div>
+                         <span className="text-[10px] text-muted-gold">(12)</span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span className="text-base md:text-lg font-bold text-gold-primary">₹{p.price}</span>
+                        {p.original_price && <span className="text-[10px] md:text-xs text-muted-gold line-through">₹{p.original_price}</span>}
+                      </div>
+
+                      {/* Quick add button - Amazon style */}
+                      {!isOut && (
+                        <button 
+                          onClick={(e) => handleAddClick(e, p)}
+                          className="mt-2 w-full bg-charcoal-light border border-gold-primary/30 text-gold-primary text-[10px] font-bold uppercase py-1.5 rounded-sm hover:bg-gold-primary hover:text-obsidian transition"
+                        >
+                          Add to Cart
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 );
               })}
             </div>
-          </section>
-        )}
-
-        {/* PRODUCTS */}
-        <section id="shop" className="mt-8 px-4 md:px-8 max-w-7xl mx-auto">
-          <div className="flex items-end justify-between mb-8 border-b border-[rgba(212,175,55,0.15)] pb-4">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-ivory tracking-wide">
-              {showSearch ? `Search Results` : 'The Collection'}
-            </h2>
-            <span className="text-xs text-gold-primary font-bold tracking-widest">{filteredProducts.length} ITEMS</span>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {loading ? <p className="text-gold-primary">Loading...</p> : filteredProducts.length === 0 ? <p className="text-muted-gold">No products found.</p> :
-              filteredProducts.map((p) => (
-                <div key={p.id} className={`luxury-card overflow-hidden flex flex-col group relative ${p.stock <= 0 ? 'opacity-50 grayscale' : ''}`}>
-                  
-                  <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} className="relative aspect-[3/4] overflow-hidden block bg-charcoal-light">
-                    <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
-                    
-                    {p.stock <= 0 && (
-                      <div className="absolute inset-0 bg-obsidian/70 flex items-center justify-center backdrop-blur-sm">
-                        <span className="border border-red-500/50 text-red-500 text-[10px] font-bold px-4 py-1.5 rounded-sm tracking-widest uppercase">Sold Out</span>
-                      </div>
-                    )}
-                    
-                    {p.original_price && (
-                      <span className="absolute top-3 left-3 gold-gradient-bg text-[9px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider">
-                        Save {Math.round(((p.original_price - p.price) / p.original_price) * 100)}%
-                      </span>
-                    )}
-
-                    {p.stock > 0 && (
-                      <button 
-                        type="button"
-                        onClick={(e) => handleAddClick(e, p)} 
-                        className="absolute bottom-0 left-0 right-0 bg-charcoal/90 backdrop-blur-md text-ivory text-[11px] font-bold uppercase tracking-widest py-3 shadow-lg opacity-0 lg:group-hover:opacity-100 transition-all duration-300 translate-y-full group-hover:translate-y-0 hover:bg-gold-primary hover:text-obsidian"
-                      >
-                        Quick Add
-                      </button>
-                    )}
-                  </Link>
-                  
-                  <div className="p-4 flex flex-col flex-1 text-center bg-charcoal">
-                    <p className="text-[9px] text-gold-primary uppercase font-bold tracking-[0.2em] mb-1">{p.category}</p>
-                    <Link to={p.stock > 0 ? `/product/${p.id}` : '#'}>
-                      <h3 className="text-sm md:text-base font-serif font-bold text-ivory line-clamp-1 leading-tight group-hover:text-gold-primary transition-colors">{p.title}</h3>
-                    </Link>
-                    <div className="flex items-center justify-center gap-3 mt-3">
-                      <span className="text-base font-bold text-gold-primary">₹{p.price}</span>
-                      {p.original_price && <span className="text-[11px] text-muted-gold line-through">₹{p.original_price}</span>}
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </section>
+          )}
+        </div>
       </main>
 
       {/* FOOTER */}
-      <footer className="mt-24 bg-charcoal border-t border-[rgba(212,175,55,0.2)] pt-16 pb-12 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          <div className="lg:col-span-1">
-            <Logo isWhite={true} />
-            <p className="text-muted-gold text-xs mt-6 max-w-xs leading-relaxed">Experience the pinnacle of footwear comfort and design. Made for those who walk ahead.</p>
-          </div>
-          
-          <div>
-            <h4 className="font-bold text-xs mb-6 text-gold-primary uppercase tracking-[0.2em]">Collection</h4>
-            <ul className="space-y-4 text-xs text-muted-gold font-medium">
-              <li><Link to="/" className="hover:text-ivory transition">Home</Link></li>
-              <li><Link to="/about" className="hover:text-ivory transition">Our Story</Link></li>
-              <li><Link to="/return" className="hover:text-ivory transition">Return Policy</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-bold text-xs mb-6 text-gold-primary uppercase tracking-[0.2em]">Support</h4>
-            <ul className="space-y-4 text-xs text-muted-gold font-medium">
-              <li><Link to="/privacy" className="hover:text-ivory transition">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-ivory transition">Terms of Service</Link></li>
-              <li><Link to="/admin/login" className="hover:text-ivory transition">Admin Portal</Link></li>
-            </ul>
-          </div>
-
-          <div className="bg-charcoal-light border border-white/5 rounded-2xl p-6">
-             <h4 className="font-bold text-xs text-ivory mb-4 flex items-center gap-2 uppercase tracking-widest">
-               <MapPin size={14} className="text-gold-primary"/> Visit Store
-             </h4>
-             <div className="w-full h-28 rounded-xl overflow-hidden mb-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition duration-500 border border-white/10">
-               <iframe src={mapEmbedUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Location"></iframe>
-             </div>
-             <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="block w-full text-center border border-gold-primary/50 text-gold-primary hover:bg-gold-primary hover:text-obsidian font-bold text-[10px] px-4 py-2.5 rounded-md transition uppercase tracking-widest">Get Directions</a>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-[rgba(212,175,55,0.1)] flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex gap-4">
-             <a href={`tel:${settings?.contact_phone || '+917018721886'}`} className="w-10 h-10 rounded-full bg-obsidian border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300"><Phone size={16} /></a>
-             <a href={settings?.instagram_url || '#'} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-obsidian border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-             </a>
-             <a href={settings?.facebook_url || '#'} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-obsidian border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-             <a href={`mailto:${settings?.contact_email || 'itskunalthakurr@gmail.com'}`} className="w-10 h-10 rounded-full bg-obsidian border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300"><Mail size={16} /></a>
-          </div>
-          <div className="text-[10px] text-muted-gold tracking-widest uppercase">
-            <p>© 2024 SS Traders. All Rights Reserved.</p>
-          </div>
-        </div>
+      <footer className="mt-12 bg-charcoal border-t border-white/10 pt-10 pb-8 px-4 text-center">
+         <Logo isWhite={true} />
+         <div className="flex justify-center gap-6 mt-6 text-xs text-muted-gold font-medium">
+            <Link to="/about" className="hover:text-gold-primary">About</Link>
+            <Link to="/privacy" className="hover:text-gold-primary">Privacy</Link>
+            <Link to="/terms" className="hover:text-gold-primary">Terms</Link>
+            <Link to="/return" className="hover:text-gold-primary">Returns</Link>
+         </div>
+         <p className="text-[10px] text-muted-gold mt-6">© 2024 SS Traders. All Rights Reserved.</p>
       </footer>
 
-      {/* MODAL */}
+      {/* SIZE MODAL */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-obsidian/90 backdrop-blur-sm px-4">
-          <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-charcoal border border-[rgba(212,175,55,0.3)] w-full max-w-md rounded-t-2xl md:rounded-xl p-6 pb-8 shadow-2xl">
-            <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
-              <h3 className="font-serif font-bold text-xl text-ivory tracking-widest uppercase">Select Size</h3>
-              <button onClick={() => setSelectedProduct(null)} className="p-1.5 bg-charcoal-light rounded-md hover:bg-white/10 transition text-muted-gold"><X size={18} /></button>
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} className="bg-charcoal border border-gold-primary/30 w-full max-w-sm rounded-t-lg md:rounded-sm p-6 pb-8">
+            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+              <h3 className="font-serif font-bold text-lg text-ivory">Select Size</h3>
+              <button onClick={() => setSelectedProduct(null)} className="text-muted-gold hover:text-ivory"><X size={20} /></button>
             </div>
-            <div className="flex gap-4 mb-6 bg-obsidian p-3 rounded-lg border border-white/5">
-               <img src={selectedProduct.images?.[0]} className="w-16 h-16 object-cover rounded-md border border-white/10" />
+            <div className="flex gap-3 mb-6">
+               <img src={selectedProduct.images?.[0]} className="w-16 h-16 object-cover rounded-sm border border-white/10" />
                <div>
-                  <p className="text-xs font-bold text-ivory line-clamp-2 leading-tight uppercase">{selectedProduct.title}</p>
-                  <p className="text-gold-primary font-bold mt-1 text-base">₹{selectedProduct.price}</p>
+                  <p className="text-sm font-bold text-ivory line-clamp-2">{selectedProduct.title}</p>
+                  <p className="text-gold-primary font-bold mt-1">₹{selectedProduct.price}</p>
                </div>
             </div>
-            
-            <div className="grid grid-cols-4 gap-2 mb-8">
+            <div className="grid grid-cols-4 gap-2 mb-6">
               {selectedProduct.sizes?.map((size) => {
-                const isSizeOut = selectedProduct.size_stock && selectedProduct.size_stock[size] <= 0;
+                const isSizeOut = selectedProduct.size_stock?.[size] <= 0;
                 return (
-                  <button key={size} onClick={() => setSelectedSize(size)} disabled={isSizeOut} className={`relative py-3 rounded-md border font-bold text-sm transition-all ${selectedSize === size ? 'border-gold-primary bg-gold-primary/10 text-gold-primary' : 'border-white/10 text-muted-gold hover:border-gold-primary/50'} ${isSizeOut ? 'opacity-40 cursor-not-allowed bg-transparent' : ''}`}>
+                  <button key={size} onClick={() => setSelectedSize(size)} disabled={isSizeOut} className={`py-2 rounded-sm border text-sm font-bold ${selectedSize === size ? 'border-gold-primary bg-gold-primary text-obsidian' : 'border-white/20 text-muted-gold'} ${isSizeOut ? 'opacity-40' : ''}`}>
                     {size}
-                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-500/50 rotate-45"></div></div>}
                   </button>
                 );
               })}
             </div>
-
-            <button type="button" onClick={handleSizeConfirm} className="w-full gold-gradient-bg py-4 rounded-md font-bold text-sm uppercase tracking-widest hover:shadow-[0_0_15px_rgba(212,175,55,0.3)] active:scale-95 transition">
+            <button onClick={handleSizeConfirm} className="w-full gold-gradient-bg text-obsidian py-3 rounded-sm font-bold uppercase text-xs tracking-wider">
               Add to Cart
             </button>
           </motion.div>

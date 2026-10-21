@@ -21,27 +21,16 @@ export default function ProductPage() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      // 1. Fetch main product
       const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
       
-      if (error || !data) { 
-        alert('Product not found'); 
-        navigate('/'); 
-      } else {
+      if (error || !data) { alert('Product not found'); navigate('/'); } 
+      else {
         setProduct(data);
         if (data.sizes && data.sizes.length > 0) {
           const firstAvailable = data.sizes.find(s => (data.size_stock?.[s] || 0) > 0);
           setSelectedSize(firstAvailable || '');
         }
-
-        // 2. Fetch related products (Same category, excluding current product)
-        const { data: relatedData } = await supabase
-          .from('products')
-          .select('*')
-          .eq('category', data.category)
-          .neq('id', data.id)
-          .limit(4);
-        
+        const { data: relatedData } = await supabase.from('products').select('*').eq('category', data.category).neq('id', data.id).limit(6);
         setRelatedProducts(relatedData || []);
       }
       setLoading(false);
@@ -55,18 +44,8 @@ export default function ProductPage() {
     return true;
   };
 
-  const handleAddToCart = () => {
-    if (!validateSelection()) return;
-    addItem(product, selectedSize);
-    openCart();
-  };
-
-  const handleBuyNow = () => {
-    if (!validateSelection()) return;
-    addItem(product, selectedSize);
-    setBuyNowMode(true);
-    openCart();
-  };
+  const handleAddToCart = () => { if (!validateSelection()) return; addItem(product, selectedSize); openCart(); };
+  const handleBuyNow = () => { if (!validateSelection()) return; addItem(product, selectedSize); setBuyNowMode(true); openCart(); };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-obsidian"><div className="w-8 h-8 border-4 border-gold-primary border-t-transparent rounded-full animate-spin"></div></div>;
   if (!product) return null;
@@ -75,117 +54,119 @@ export default function ProductPage() {
   const discount = product.original_price ? Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-obsidian pb-32 font-sans relative text-ivory">
-      <header className="fixed top-0 left-0 right-0 z-40 px-4 py-4 flex items-center justify-between pointer-events-none">
-        <button onClick={() => navigate(-1)} className="p-2.5 bg-black/50 backdrop-blur-md border border-white/10 rounded-full shadow-sm pointer-events-auto active:scale-95 transition text-ivory hover:text-gold-primary"><ArrowLeft size={18} /></button>
-        <div className="flex gap-2 pointer-events-auto">
-          <button className="p-2.5 bg-black/50 backdrop-blur-md border border-white/10 rounded-full shadow-sm active:scale-95 transition text-ivory hover:text-gold-primary"><Share2 size={18} /></button>
-          <button onClick={openCart} className="relative p-2.5 bg-black/50 backdrop-blur-md border border-white/10 rounded-full shadow-sm active:scale-95 transition text-ivory hover:text-gold-primary">
-            <ShoppingBag size={18} />
-            {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-gold-primary text-obsidian text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>}
+    <div className="min-h-screen bg-obsidian pb-10 font-sans text-ivory">
+      
+      {/* HEADER */}
+      <header className="bg-charcoal border-b border-white/10 sticky top-0 z-40">
+        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm font-bold text-muted-gold hover:text-ivory transition">
+            <ArrowLeft size={18} /> Back
+          </button>
+          <button onClick={openCart} className="relative text-ivory">
+            <ShoppingBag size={22} />
+            {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-gold-primary text-obsidian text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>}
           </button>
         </div>
       </header>
 
-      {/* IMAGE GALLERY */}
-      <div className="relative w-full aspect-[4/5] bg-charcoal overflow-hidden border-b border-white/5">
-        <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" onScroll={(e) => setActiveImage(Math.round(e.target.scrollLeft / e.target.clientWidth))}>
-          {product.images?.map((img, idx) => (
-            <div key={idx} className="w-full h-full flex-shrink-0 snap-center"><img src={img} alt={product.title} className="w-full h-full object-cover" /></div>
-          ))}
-        </div>
-        {product.images?.length > 1 && (
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
-            {product.images.map((_, idx) => (
-              <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${activeImage === idx ? 'w-6 bg-gold-primary' : 'w-1.5 bg-white/20'}`} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="px-6 pt-8 pb-4 relative bg-obsidian rounded-t-[2.5rem] -mt-6 z-10 border-t border-white/5">
-        <div className="flex justify-between items-start mb-3">
-          <p className="text-[10px] text-gold-primary uppercase font-bold tracking-widest border border-gold-primary/30 px-2 py-1 rounded">{product.category}</p>
-          <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-2 py-1 rounded text-xs font-bold text-muted-gold"><Star size={12} className="fill-gold-primary text-gold-primary" /> 4.8</div>
-        </div>
-        
-        <h2 className="text-3xl font-serif font-bold text-ivory leading-[1.1] tracking-wide mb-3">{product.title}</h2>
-        
-        <div className="flex items-end gap-4 mt-6 mb-8 border-b border-white/10 pb-6">
-          <span className="text-3xl font-black text-gold-primary">₹{product.price}</span>
-          {product.original_price && (
-            <div className="flex items-center gap-3 mb-1">
-              <span className="text-sm text-muted-gold line-through font-medium">₹{product.original_price}</span>
-              <span className="text-[10px] text-black bg-gold-primary px-2 py-0.5 rounded font-black tracking-widest">{discount}% OFF</span>
+      <main className="max-w-[1600px] mx-auto px-4 py-6">
+        {/* 2-Column Layout like Amazon (Image Left, Details Right) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-charcoal p-4 md:p-8 rounded-sm border border-white/5">
+          
+          {/* LEFT: Image Gallery */}
+          <div className="md:col-span-5 flex flex-col md:flex-row gap-4">
+            {/* Thumbnails (Desktop only) */}
+            <div className="hidden md:flex flex-col gap-2 w-16">
+               {product.images?.map((img, idx) => (
+                 <img key={idx} src={img} onClick={() => setActiveImage(idx)} className={`w-full aspect-square object-cover cursor-pointer border ${activeImage === idx ? 'border-gold-primary' : 'border-transparent opacity-50'}`} />
+               ))}
             </div>
-          )}
-        </div>
-
-        {product.sizes && product.sizes.length > 0 && (
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-sm font-bold text-ivory uppercase tracking-widest">Select Size</h3>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              {product.sizes.map((size) => {
-                const isSizeOut = product.size_stock?.[size] !== undefined ? product.size_stock[size] <= 0 : false;
-                return (
-                  <button key={size} onClick={() => setSelectedSize(size)} disabled={isOutOfStock || isSizeOut} className={`relative py-3.5 rounded-xl border font-bold text-sm transition-all ${selectedSize === size ? 'border-gold-primary bg-gold-primary/10 text-gold-primary shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'border-white/10 text-muted-gold hover:border-gold-primary/50'} ${(isOutOfStock || isSizeOut) ? 'opacity-40 cursor-not-allowed bg-transparent' : ''}`}>
-                    {size}
-                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-500/50 rotate-45"></div></div>}
-                  </button>
-                );
-              })}
+            
+            {/* Main Image */}
+            <div className="flex-1 relative bg-black rounded-sm overflow-hidden aspect-square border border-white/10">
+              <img src={product.images?.[activeImage]} className="w-full h-full object-cover" />
             </div>
           </div>
-        )}
 
-        {/* DYNAMIC PRODUCT DESCRIPTION */}
-        <div className="border-t border-white/10 pt-6">
-           <h3 className="text-sm font-bold text-ivory mb-3 uppercase tracking-widest">Product Details</h3>
-           <p className="text-sm text-muted-gold leading-relaxed font-medium whitespace-pre-wrap">
-             {product.description || "Step into ultimate comfort with SS Traders. Crafted with premium materials, these shoes are designed for all-day wear, providing unmatched support and a timeless style that elevates any outfit."}
-           </p>
-        </div>
-      </div>
+          {/* RIGHT: Details */}
+          <div className="md:col-span-7">
+            <p className="text-xs text-gold-primary uppercase font-bold tracking-widest mb-2">{product.category}</p>
+            <h1 className="text-2xl md:text-3xl font-serif font-bold text-ivory mb-2">{product.title}</h1>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex text-gold-primary">
+                <Star size={14} className="fill-gold-primary" /><Star size={14} className="fill-gold-primary" /><Star size={14} className="fill-gold-primary" /><Star size={14} className="fill-gold-primary" /><Star size={14} className="fill-gold-primary" />
+              </div>
+              <span className="text-xs text-muted-gold">4.8 (124 ratings)</span>
+            </div>
 
-      {/* RELATED PRODUCTS (Amazon Style) */}
-      {relatedProducts.length > 0 && (
-        <div className="px-6 py-8 mt-4 bg-charcoal-light border-t border-white/5">
-          <h3 className="text-xl font-serif font-bold text-ivory mb-6 tracking-wide">You May Also Like</h3>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-            {relatedProducts.map((rp) => (
-              <div 
-                key={rp.id} 
-                onClick={() => { navigate(`/product/${rp.id}`); window.scrollTo(0, 0); }}
-                className="w-40 flex-shrink-0 snap-start cursor-pointer group"
-              >
-                <div className="relative aspect-[3/4] bg-obsidian rounded-lg overflow-hidden border border-white/10 group-hover:border-gold-primary/50 transition">
-                  <img src={rp.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                </div>
-                <div className="mt-3">
-                  <p className="text-[9px] text-gold-primary uppercase font-bold tracking-widest mb-1">{rp.category}</p>
-                  <h4 className="text-xs font-bold text-ivory line-clamp-1 group-hover:text-gold-primary transition">{rp.title}</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm font-bold text-ivory">₹{rp.price}</span>
-                    {rp.original_price && <span className="text-[10px] text-muted-gold line-through">₹{rp.original_price}</span>}
-                  </div>
+            <hr className="border-white/10 my-4" />
+
+            <div className="flex items-end gap-3 mb-2">
+              {discount > 0 && <span className="text-2xl text-red-500 font-medium">-{discount}%</span>}
+              <span className="text-3xl font-bold text-ivory">₹{product.price}</span>
+            </div>
+            {product.original_price && (
+              <p className="text-sm text-muted-gold">M.R.P.: <span className="line-through">₹{product.original_price}</span></p>
+            )}
+            <p className="text-xs text-green-500 mt-1 font-medium">Inclusive of all taxes</p>
+
+            <hr className="border-white/10 my-6" />
+
+            {/* Sizes */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-ivory mb-3">Select Size</h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => {
+                    const isSizeOut = product.size_stock?.[size] <= 0;
+                    return (
+                      <button key={size} onClick={() => setSelectedSize(size)} disabled={isOutOfStock || isSizeOut} className={`w-14 py-2 rounded-sm border text-sm font-bold transition-all ${selectedSize === size ? 'border-gold-primary bg-gold-primary/10 text-gold-primary' : 'border-white/20 text-muted-gold hover:border-gold-primary/50'} ${isSizeOut ? 'opacity-30 cursor-not-allowed line-through' : ''}`}>
+                        {size}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Description */}
+            <div className="mb-6">
+              <h3 className="text-sm font-bold text-ivory mb-2">About this item</h3>
+              <p className="text-sm text-muted-gold leading-relaxed whitespace-pre-wrap">
+                {product.description || "Step into ultimate comfort with SS Traders. Crafted with premium materials, these shoes are designed for all-day wear, providing unmatched support and a timeless style that elevates any outfit."}
+              </p>
+            </div>
+
+            {/* Action Buttons (Amazon Layout) */}
+            <div className="border border-white/10 p-4 rounded-sm bg-obsidian-light flex flex-col gap-3">
+               <button onClick={handleBuyNow} disabled={isOutOfStock} className="w-full gold-gradient-bg text-obsidian py-3 rounded-full font-bold text-sm active:scale-95 transition">
+                 {isOutOfStock ? 'Out of Stock' : 'Buy Now'}
+               </button>
+               <button onClick={handleAddToCart} disabled={isOutOfStock} className="w-full bg-charcoal border border-gold-primary text-gold-primary py-3 rounded-full font-bold text-sm active:scale-95 transition hover:bg-gold-primary/10">
+                 Add to Cart
+               </button>
+            </div>
+
           </div>
         </div>
-      )}
 
-      {/* STICKY BOTTOM BAR */}
-      <div className="fixed bottom-0 left-0 right-0 bg-obsidian/90 backdrop-blur-xl border-t border-white/10 p-4 pb-6 flex gap-3 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-        <button onClick={handleAddToCart} disabled={isOutOfStock} className={`flex-1 font-bold py-4 rounded-xl transition flex items-center justify-center border-2 border-gold-primary text-gold-primary uppercase tracking-widest text-xs ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'active:scale-95 hover:bg-gold-primary/10'}`}>
-          Add to Cart
-        </button>
-        <button onClick={handleBuyNow} disabled={isOutOfStock} className={`flex-[1.5] font-black py-4 rounded-xl transition flex items-center justify-center uppercase tracking-widest text-xs ${isOutOfStock ? 'bg-charcoal text-muted-gold cursor-not-allowed' : 'gold-gradient-bg text-obsidian shadow-[0_0_15px_rgba(212,175,55,0.3)] active:scale-95'}`}>
-          {isOutOfStock ? 'Sold Out' : 'Buy It Now'}
-        </button>
-      </div>
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-xl font-serif font-bold text-ivory mb-4">Products related to this item</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {relatedProducts.map((rp) => (
+                <div key={rp.id} onClick={() => { navigate(`/product/${rp.id}`); window.scrollTo(0,0); }} className="bg-charcoal border border-white/5 p-2 rounded-sm cursor-pointer hover:border-gold-primary/50 transition">
+                  <div className="aspect-square bg-black mb-2 overflow-hidden"><img src={rp.images?.[0]} className="w-full h-full object-cover" /></div>
+                  <h4 className="text-xs text-ivory line-clamp-1">{rp.title}</h4>
+                  <p className="text-sm font-bold text-gold-primary mt-1">₹{rp.price}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
