@@ -5,9 +5,9 @@ import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import ProductPage from './pages/ProductPage';
 import About from './pages/About';
-import PrivacyPolicy from './pages/PrivacyPolicy'; // <-- Naya Import
-import Terms from './pages/Terms';               // <-- Naya Import
-import ReturnPolicy from './pages/ReturnPolicy'; // <-- Naya Import
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import ReturnPolicy from './pages/ReturnPolicy';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProductUpload from './pages/admin/AdminProductUpload';
@@ -39,12 +39,9 @@ export default function App() {
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/about" element={<About />} />
-        
-        {/* Naye Routes */}
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/return" element={<ReturnPolicy />} />
-        
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/upload" element={<ProtectedRoute><AdminProductUpload /></ProtectedRoute>} />
@@ -52,7 +49,10 @@ export default function App() {
         <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
         <Route path="/admin/edit/:id" element={<ProtectedRoute><AdminEditProduct /></ProtectedRoute>} />
       </Routes>
+      
+      {/* Yahan CartDrawer render ho raha hai */}
       <CartDrawer />
+      
       {count > 0 && (
         <button onClick={openCart} className="fixed bottom-4 left-4 right-4 bg-emerald-700 text-white py-4 rounded-2xl shadow-2xl font-bold z-40 flex justify-between px-6">
           <span>View Cart ({count})</span><span>Checkout →</span>
