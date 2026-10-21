@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail } from 'lucide-react';
+import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../components/Logo';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -12,7 +13,6 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   
-  // Size Modal ke liye states
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
 
@@ -33,15 +33,13 @@ export default function Home() {
   const filteredProducts = products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleAddClick = (e, product) => {
-    e.preventDefault();
+    e.preventDefault(); 
+    e.stopPropagation();
     if (product.stock <= 0) return alert('This product is out of stock.');
-    
-    // Agar product me sizes hain, toh Modal kholo
     if (product.sizes && product.sizes.length > 0) {
       setSelectedProduct(product);
       setSelectedSize('');
     } else {
-      // Agar size nahi hai, toh direct add kardo
       addItem(product);
       openCart();
     }
@@ -49,12 +47,7 @@ export default function Home() {
 
   const handleSizeConfirm = () => {
     if (!selectedSize) return alert('Please select a size');
-    
-    // Size out-of-stock check
-    if (selectedProduct.size_stock && selectedProduct.size_stock[selectedSize] !== undefined && selectedProduct.size_stock[selectedSize] <= 0) {
-      return alert('This size is out of stock!');
-    }
-
+    if (selectedProduct.size_stock && selectedProduct.size_stock[selectedSize] <= 0) return alert('Out of stock!');
     addItem(selectedProduct, selectedSize);
     setSelectedProduct(null);
     openCart();
@@ -65,113 +58,141 @@ export default function Home() {
   const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-10 font-sans text-gray-900">
-      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-lg border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#F9FAFB] pb-10 font-sans text-gray-900">
+      {/* GLASSMORPHISM HEADER */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-4 py-3 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
         {!showSearch ? (
           <>
-            <div>
-              <h1 className="text-xl font-black text-emerald-950 tracking-tight leading-none">SS TRADERS</h1>
-              <p className="text-[9px] uppercase tracking-[0.2em] text-gray-500 mt-1 font-semibold">Premium Footwear</p>
-            </div>
-            <div className="flex items-center gap-5">
-              <Search onClick={() => setShowSearch(true)} size={22} className="text-gray-700 cursor-pointer" />
-              <button onClick={openCart} className="relative">
-                <ShoppingBag size={22} className="text-gray-700" />
-                {cartCount > 0 && <span className="absolute -top-1.5 -right-2 bg-amber-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{cartCount}</span>}
+            <Logo />
+            <div className="flex items-center gap-6">
+              <Search onClick={() => setShowSearch(true)} size={22} className="text-gray-600 cursor-pointer hover:text-emerald-700 transition" />
+              <button onClick={openCart} className="relative group">
+                <ShoppingBag size={22} className="text-gray-600 group-hover:text-emerald-700 transition" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-sm">
+                    {cartCount}
+                  </span>
+                )}
               </button>
             </div>
           </>
         ) : (
-          <div className="flex items-center gap-2 w-full animate-in fade-in">
-            <Search size={18} className="text-gray-400" />
-            <input autoFocus placeholder="Search shoes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent outline-none text-sm font-medium" />
-            <button onClick={() => { setShowSearch(false); setSearchQuery(''); }} className="p-1 bg-gray-100 rounded-full"><X size={16} /></button>
+          <div className="flex items-center gap-3 w-full animate-in fade-in slide-in-from-top-2">
+            <Search size={20} className="text-gray-400" />
+            <input autoFocus placeholder="Search premium shoes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent outline-none text-sm font-medium placeholder-gray-400" />
+            <button onClick={() => { setShowSearch(false); setSearchQuery(''); }} className="p-1.5 bg-gray-100 rounded-full"><X size={16} /></button>
           </div>
         )}
       </header>
 
       <main>
+        {/* HERO SECTION - FULL SCREEN */}
         {!showSearch && (
-          <section className="relative h-[450px] w-full flex items-center justify-center overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1000&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 px-6 text-center max-w-md flex flex-col items-center">
-              <span className="bg-amber-500 text-emerald-950 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest mb-4">New Collection 2024</span>
-              <h2 className="text-4xl font-black text-white leading-tight mb-3">Step Into <br/> Ultimate Comfort.</h2>
-              <button onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })} className="bg-white text-emerald-950 font-bold px-8 py-3.5 rounded-full shadow-xl flex items-center gap-2">Shop Collection <ChevronRight size={16} /></button>
+          <section className="relative h-[85vh] w-full flex items-end justify-start overflow-hidden pb-12 px-6">
+            <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=1500&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+            
+            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative z-10 max-w-lg">
+              <span className="text-amber-400 text-xs font-bold uppercase tracking-[0.2em] mb-3 block">New Collection 2024</span>
+              <h2 className="text-5xl font-black text-white leading-[1.1] mb-4">Redefine Your <br/> Footwear Style.</h2>
+              <p className="text-gray-300 text-sm mb-8 leading-relaxed max-w-sm">
+                Discover the perfect blend of comfort, durability, and unmatched premium design.
+              </p>
+              <button onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })} className="bg-white text-black font-bold px-8 py-4 rounded-full shadow-2xl hover:bg-gray-100 transition active:scale-95 flex items-center gap-2">
+                Explore Collection <ChevronRight size={18} />
+              </button>
             </motion.div>
           </section>
         )}
 
+        {/* TRUST BADGES */}
         {!showSearch && (
-          <section className="bg-white shadow-sm relative z-20 -mt-6 mx-4 rounded-2xl p-4 flex justify-between items-center">
-            {[{ icon: Truck, title: 'Reliable Shipping' }, { icon: ShieldCheck, title: 'Secure Pay' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
-              <div key={i} className="flex flex-col items-center text-center gap-1 flex-1 border-r border-gray-100 last:border-0">
-                <item.icon size={22} className="text-emerald-700 mb-1" />
-                <span className="text-[10px] font-bold text-gray-900">{item.title}</span>
+          <section className="bg-white relative z-20 -mt-8 mx-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 flex justify-between items-center border border-gray-100">
+            {[{ icon: Truck, title: 'Free Shipping' }, { icon: ShieldCheck, title: 'Secure Payment' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
+              <div key={i} className="flex flex-col items-center text-center gap-1.5 flex-1 border-r border-gray-100 last:border-0">
+                <item.icon size={20} className="text-emerald-800" />
+                <span className="text-[11px] font-bold text-gray-800">{item.title}</span>
               </div>
             ))}
           </section>
         )}
 
-        {!showSearch && (
-          <section className="mt-8 px-4">
-            <h3 className="text-lg font-extrabold text-gray-900 mb-4">Shop by Category</h3>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        {/* CATEGORIES */}
+        {!showSearch && categories.length > 0 && (
+          <section className="mt-12 px-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-gray-900 tracking-tight">Shop by Category</h3>
+            </div>
+            <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
               {categories.map((cat) => (
-                <Link to={`/category/${cat.slug}`} key={cat.id} className="min-w-[100px] flex-shrink-0">
-                  <div className="h-24 w-24 mx-auto bg-gray-200 rounded-full overflow-hidden border-2 border-white shadow-md">
-                    <img src={`https://source.unsplash.com/200x200/?${cat.slug.split('-')[0]},shoes`} className="w-full h-full object-cover" alt={cat.name} />
+                <Link to={`/category/${cat.slug}`} key={cat.id} className="min-w-[90px] flex-shrink-0 group">
+                  <div className="h-20 w-20 mx-auto bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
+                    <img src={`https://source.unsplash.com/200x200/?${cat.slug.split('-')[0]},shoes`} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt={cat.name} />
                   </div>
-                  <p className="text-center text-xs font-bold mt-2 text-gray-700 capitalize">{cat.name}</p>
+                  <p className="text-center text-[11px] font-bold mt-3 text-gray-700 group-hover:text-emerald-800 transition capitalize">{cat.name}</p>
                 </Link>
               ))}
             </div>
           </section>
         )}
 
-        <section id="shop" className="mt-10 px-4">
-          <h3 className="text-xl font-extrabold text-gray-900 mb-4">
-            {showSearch ? `Search Results (${filteredProducts.length})` : 'Trending Now'}
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
+        {/* PRODUCTS GRID */}
+        <section id="shop" className="mt-10 px-6">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+                {showSearch ? `Search Results (${filteredProducts.length})` : 'Trending Now'}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1 font-medium">Handpicked just for you</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8">
             {loading ? <p>Loading...</p> : filteredProducts.length === 0 ? <p className="text-gray-500 text-sm">No shoes found.</p> :
               filteredProducts.map((p) => (
-                <div key={p.id} className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group relative ${p.stock <= 0 ? 'opacity-70' : ''}`}>
+                <div key={p.id} className={`flex flex-col group relative ${p.stock <= 0 ? 'opacity-60' : ''}`}>
                   
-                  {/* Clickable Image aur Title jo Product Page par le jayega */}
-                  <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} className="relative bg-gray-50 aspect-[4/5] overflow-hidden block">
-                    <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                  <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} className="relative bg-gray-100 aspect-[3/4] rounded-3xl overflow-hidden shadow-sm block mb-3">
+                    <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+                    
                     {p.stock <= 0 && (
-                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[2px]">
-                        <span className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">OUT OF STOCK</span>
+                      <div className="absolute inset-0 bg-white/50 flex items-center justify-center backdrop-blur-[2px]">
+                        <span className="bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg">SOLD OUT</span>
                       </div>
                     )}
+                    
                     {p.images?.length > 1 && (
-                      <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 backdrop-blur-sm">
-                        <ImageIcon size={10} /> 1/{p.images.length}
+                      <div className="absolute bottom-3 right-3 bg-black/50 text-white text-[9px] font-bold px-2 py-1 rounded-full flex items-center gap-1 backdrop-blur-md">
+                        <ImageIcon size={10} /> {p.images.length}
                       </div>
                     )}
-                    {p.original_price && <span className="absolute top-2 right-2 bg-amber-400 text-emerald-950 text-[10px] font-extrabold px-2 py-1 rounded-sm shadow-sm">{Math.round(((p.original_price - p.price) / p.original_price) * 100)}% OFF</span>}
+                    
+                    {p.original_price && (
+                      <span className="absolute top-3 left-3 bg-amber-400 text-black text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm">
+                        {Math.round(((p.original_price - p.price) / p.original_price) * 100)}% OFF
+                      </span>
+                    )}
+
+                    {/* Floating ADD Button */}
+                    {p.stock > 0 && (
+                      <button 
+                        type="button"
+                        onClick={(e) => handleAddClick(e, p)} 
+                        className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md text-black text-xs font-bold py-2.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 hover:bg-black hover:text-white"
+                      >
+                        Quick Add
+                      </button>
+                    )}
                   </Link>
                   
-                  <div className="p-3 flex flex-col flex-1">
+                  <div className="flex flex-col px-1">
                     <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider mb-1">{p.category}</p>
                     <Link to={p.stock > 0 ? `/product/${p.id}` : '#'}>
-                      <h4 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-2">{p.title}</h4>
+                      <h4 className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight">{p.title}</h4>
                     </Link>
-                    <div className="mt-auto pt-2 flex items-end justify-between">
-                      <div className="flex flex-col">
-                        {p.original_price && <span className="text-[11px] text-gray-400 line-through">MRP: ₹{p.original_price}</span>}
-                        <span className="text-base font-black text-emerald-950">₹{p.price}</span>
-                      </div>
-                      
-                      {/* Naya ADD Button jo popup kholega */}
-                      {p.stock > 0 ? (
-                        <button onClick={(e) => handleAddClick(e, p)} className="bg-gray-100 text-gray-900 hover:bg-emerald-800 hover:text-white text-[11px] font-bold px-4 py-2 rounded-full active:scale-95 transition-colors">ADD</button>
-                      ) : (
-                        <button disabled className="bg-gray-200 text-gray-400 text-[10px] font-bold px-3 py-2 rounded-full cursor-not-allowed">SOLD OUT</button>
-                      )}
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-sm font-black text-gray-900">₹{p.price}</span>
+                      {p.original_price && <span className="text-[11px] text-gray-400 line-through font-medium">₹{p.original_price}</span>}
                     </div>
                   </div>
                 </div>
@@ -180,107 +201,94 @@ export default function Home() {
         </section>
       </main>
 
-      {/* --- SIZE SELECTION MODAL (Home Page par) --- */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
-          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} className="bg-white w-full max-w-md rounded-t-3xl p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-black text-lg text-gray-900">Select Size</h3>
-              <button onClick={() => setSelectedProduct(null)} className="p-2 bg-gray-100 rounded-full"><X size={18} /></button>
+      {/* PREMIUM DARK FOOTER */}
+      <footer className="mt-20 bg-[#0a1f15] text-white rounded-t-[3rem] pt-16 pb-28 px-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex flex-col items-center text-center mb-12">
+            <Logo isWhite={true} />
+            <p className="text-emerald-200/60 text-xs mt-4 max-w-xs">Experience the pinnacle of footwear comfort and design. Made for those who walk ahead.</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-8 mb-12">
+            <div>
+              <h4 className="font-bold text-xs mb-5 text-amber-400 uppercase tracking-widest">Shop</h4>
+              <ul className="space-y-3 text-sm text-emerald-100/70">
+                <li><Link to="/" className="hover:text-white transition">Home</Link></li>
+                <li><Link to="/about" className="hover:text-white transition">Our Story</Link></li>
+                <li><Link to="/return" className="hover:text-white transition">Return Policy</Link></li>
+              </ul>
             </div>
-            <div className="flex gap-3 mb-6 bg-gray-50 p-3 rounded-xl">
-               <img src={selectedProduct.images?.[0]} className="w-16 h-16 object-cover rounded-lg" />
+            <div>
+              <h4 className="font-bold text-xs mb-5 text-amber-400 uppercase tracking-widest">Support</h4>
+              <ul className="space-y-3 text-sm text-emerald-100/70">
+                <li><Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition">Terms of Service</Link></li>
+                <li><Link to="/admin/login" className="hover:text-white transition">Admin Portal</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mb-12">
+             <h4 className="font-bold text-sm text-white mb-4 flex items-center gap-2"><MapPin size={16} className="text-amber-400"/> Visit Our Store</h4>
+             <div className="w-full h-40 rounded-xl overflow-hidden mb-4 grayscale opacity-80 hover:grayscale-0 transition duration-500">
+               <iframe src={mapEmbedUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Location"></iframe>
+             </div>
+             <p className="text-emerald-100/60 text-xs mb-4">Mangwain Mohalla 264/12, HP 175001</p>
+             <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="block w-full text-center bg-amber-500 text-black font-bold text-xs px-4 py-3 rounded-xl hover:bg-amber-400 transition">Get Directions</a>
+          </div>
+
+          <div className="flex justify-center gap-4 mb-8">
+             <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-amber-500 hover:text-black transition">
+                <Phone size={16} />
+             </a>
+             <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-amber-500 hover:text-black transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+             </a>
+             <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-amber-500 hover:text-black transition">
+                <Mail size={16} />
+             </a>
+          </div>
+          
+          <div className="text-center text-[10px] text-emerald-100/40">
+            <p>© 2024 SS Traders. Designed with precision.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* MODAL */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm">
+          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} className="bg-white w-full max-w-md rounded-t-[2.5rem] p-8 pb-10">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-black text-xl text-gray-900 tracking-tight">Select Size</h3>
+              <button onClick={() => setSelectedProduct(null)} className="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 transition"><X size={18} /></button>
+            </div>
+            <div className="flex gap-4 mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+               <img src={selectedProduct.images?.[0]} className="w-20 h-20 object-cover rounded-xl" />
                <div>
-                  <p className="text-sm font-bold text-gray-900 line-clamp-2">{selectedProduct.title}</p>
-                  <p className="text-emerald-700 font-bold mt-1">₹{selectedProduct.price}</p>
+                  <p className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">{selectedProduct.title}</p>
+                  <p className="text-emerald-800 font-black mt-2">₹{selectedProduct.price}</p>
                </div>
             </div>
             
-            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Available Sizes</p>
-            <div className="grid grid-cols-4 gap-2 mb-8">
+            <div className="grid grid-cols-4 gap-3 mb-10">
               {selectedProduct.sizes?.map((size) => {
-                const isSizeOut = selectedProduct.size_stock && selectedProduct.size_stock[size] !== undefined && selectedProduct.size_stock[size] <= 0;
+                const isSizeOut = selectedProduct.size_stock && selectedProduct.size_stock[size] <= 0;
                 return (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    disabled={isSizeOut}
-                    className={`relative py-3 rounded-xl border-2 font-bold text-sm transition-all ${
-                      selectedSize === size ? 'border-emerald-700 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    } ${isSizeOut ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}`}
-                  >
+                  <button key={size} onClick={() => setSelectedSize(size)} disabled={isSizeOut} className={`relative py-3.5 rounded-xl border-2 font-bold text-sm transition-all ${selectedSize === size ? 'border-emerald-800 bg-emerald-800 text-white shadow-lg shadow-emerald-800/30' : 'border-gray-200 text-gray-600 hover:border-gray-300'} ${isSizeOut ? 'opacity-40 cursor-not-allowed bg-gray-50' : ''}`}>
                     {size}
-                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-400 rotate-45 transform origin-center"></div></div>}
+                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-500 rotate-45"></div></div>}
                   </button>
                 );
               })}
             </div>
 
-            <button onClick={handleSizeConfirm} className="w-full bg-emerald-800 text-white py-4 rounded-xl font-bold text-lg shadow-xl shadow-emerald-900/20 active:scale-95 transition">
+            <button type="button" onClick={handleSizeConfirm} className="w-full bg-black text-white py-4 rounded-2xl font-bold text-lg hover:bg-gray-900 active:scale-95 transition">
               Add to Cart
             </button>
           </motion.div>
         </div>
       )}
-
-      {/* PREMIUM FOOTER */}
-      <footer className="mt-16 bg-emerald-950 text-white rounded-t-[40px] pt-12 pb-24 px-6">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-black mb-2 tracking-tight">SS TRADERS</h2>
-            <p className="text-emerald-200 text-xs">Step Into Ultimate Comfort.</p>
-          </div>
-          
-          <div className="bg-emerald-900/50 rounded-2xl p-4 mb-8 border border-emerald-800">
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin size={18} className="text-amber-400" />
-              <h4 className="font-bold text-sm text-white">Visit Our Store</h4>
-            </div>
-            <div className="w-full h-40 rounded-xl overflow-hidden shadow-lg mb-3 border border-emerald-700/50">
-              <iframe src={mapEmbedUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Location"></iframe>
-            </div>
-            <p className="text-emerald-100 text-sm mb-1">Mangwain Mohalla 264/12, HP 175001</p>
-            <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="inline-block mt-2 bg-amber-500 text-emerald-950 font-bold text-xs px-4 py-2 rounded-lg active:scale-95 transition">Get Directions</a>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 mb-8 border-t border-emerald-900 pt-8">
-            <div>
-              <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider">Quick Links</h4>
-              <ul className="space-y-3 text-sm text-emerald-100">
-                <li><Link to="/" className="hover:text-white transition">Home</Link></li>
-                <li><Link to="/about" className="hover:text-white transition">About Us</Link></li>
-                <li><Link to="/admin/login" className="hover:text-white transition">Admin Login</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider">Policies</h4>
-              <ul className="space-y-3 text-sm text-emerald-100">
-                <li><Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-white transition">Terms of Service</Link></li>
-                <li><Link to="/return" className="hover:text-white transition">Return Policy</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-emerald-900 pt-8 mb-8">
-            <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider text-center">Connect With Us</h4>
-            <div className="flex flex-col items-center gap-3 text-sm text-emerald-100">
-              <div className="flex gap-6">
-                <span className="flex items-center gap-2"><Phone size={14} /> +91 7018721886</span>
-                <span className="flex items-center gap-2"><Mail size={14} /> itskunalthakurr@gmail.com</span>
-              </div>
-              <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold transition mt-2 shadow-lg shadow-blue-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                Follow us on Facebook
-              </a>
-            </div>
-          </div>
-          
-          <div className="text-center border-t border-emerald-900 pt-6 text-[10px] text-emerald-400/60">
-            <p>© 2024 SS Traders. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
