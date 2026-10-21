@@ -241,50 +241,25 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex gap-4">
-             <a href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Phone size={16} /></a>
+             {/* Phone */}
+             <a href="tel:+917018721886" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Phone size={16} /></a>
+             
+             {/* Instagram Link Added Here */}
+             <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+             </a>
+
+             {/* Facebook */}
              <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-             <a href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Mail size={16} /></a>
+             
+             {/* Email */}
+             <a href="mailto:itskunalthakurr@gmail.com" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Mail size={16} /></a>
           </div>
           <div className="text-[10px] text-gray-600 font-medium tracking-widest uppercase">
             <p>© 2024 SS Traders. Designed with precision.</p>
           </div>
         </div>
       </footer>
-
-      {/* MODAL (Gold Styled) */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/80 backdrop-blur-md px-4">
-          <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-[#121212] border border-white/10 w-full max-w-md rounded-t-[2.5rem] md:rounded-3xl p-8 pb-10 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-serif font-bold text-2xl text-white tracking-wide">Select Size</h3>
-              <button onClick={() => setSelectedProduct(null)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition text-gray-400"><X size={18} /></button>
-            </div>
-            <div className="flex gap-4 mb-8 bg-black/50 p-4 rounded-2xl border border-white/5">
-               <img src={selectedProduct.images?.[0]} className="w-20 h-20 object-cover rounded-xl border border-white/10" />
-               <div>
-                  <p className="text-sm font-bold text-white line-clamp-2 leading-tight">{selectedProduct.title}</p>
-                  <p className="text-amber-500 font-black mt-2 text-lg">₹{selectedProduct.price}</p>
-               </div>
-            </div>
-            
-            <div className="grid grid-cols-4 gap-3 mb-10">
-              {selectedProduct.sizes?.map((size) => {
-                const isSizeOut = selectedProduct.size_stock && selectedProduct.size_stock[size] <= 0;
-                return (
-                  <button key={size} onClick={() => setSelectedSize(size)} disabled={isSizeOut} className={`relative py-3.5 rounded-xl border font-bold text-sm transition-all ${selectedSize === size ? 'border-amber-500 bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'border-white/10 text-gray-400 hover:border-amber-500/50'} ${isSizeOut ? 'opacity-40 cursor-not-allowed bg-transparent' : ''}`}>
-                    {size}
-                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-500 rotate-45"></div></div>}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button type="button" onClick={handleSizeConfirm} className="w-full bg-amber-500 text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-amber-400 active:scale-95 transition">
-              Add to Cart
-            </button>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }
