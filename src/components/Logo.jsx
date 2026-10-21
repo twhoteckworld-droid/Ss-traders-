@@ -4,10 +4,10 @@ export default function Logo({ isWhite = false }) {
   return (
     <Link to="/" className="flex items-center gap-3 group">
       
-      {/* Perfect Circular Logo Image */}
-      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-amber-500 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-transform duration-300 flex-shrink-0 bg-black">
+      {/* Perfect Circular Logo Container */}
+      <div className="w-11 h-11 md:w-14 md:h-14 rounded-full border-2 border-amber-500 overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-transform duration-300 flex-shrink-0 bg-black">
         <img 
-          src="https://i.supaimg.com/3921581e-9393-4ca3-8664-a7857de8a22d/5980496a-9978-44d3-a15d-0f2cacdaa6ee.jpg" 
+          src="https://i.supaimg.com/3921581e-9393-4ca3-8664-a7857de8a22d/2aca0a12-85eb-4cbb-a0a4-88b0cd21c9dd.jpg" 
           alt="SS Traders Logo" 
           className="w-full h-full object-cover"
         />
