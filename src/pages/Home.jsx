@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
 import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail } from 'lucide-react';
@@ -12,6 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all'); // Category filter state
   
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
@@ -30,7 +31,14 @@ export default function Home() {
     })();
   }, []);
 
-  const filteredProducts = products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Combined Filter: Search + Category
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchQuery, activeCategory]);
 
   const handleAddClick = (e, product) => {
     e.preventDefault(); 
@@ -53,15 +61,27 @@ export default function Home() {
     openCart();
   };
 
+  // Gradients for Glossy Buttons
+  const buttonGradients = [
+    'from-cyan-400 to-cyan-600',
+    'from-purple-500 to-purple-700',
+    'from-gray-300 to-gray-500 text-black drop-shadow-none',
+    'from-green-500 to-green-700',
+    'from-red-500 to-red-700',
+    'from-pink-500 to-pink-700',
+    'from-orange-400 to-orange-600',
+    'from-blue-500 to-blue-700'
+  ];
+
   const mapQuery = encodeURIComponent("SS TRADERS, Mangwain Mohalla 264/12, Himachal Pradesh 175001");
   const mapEmbedUrl = `https://maps.google.com/maps?q=${mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-10 font-sans text-white">
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#111111] pb-10 font-sans text-white">
+      {/* HEADER (Cleaner, Lighter background) */}
+      <header className="sticky top-0 z-40 bg-[#111111]/90 backdrop-blur-xl border-b border-white/5 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           {!showSearch ? (
             <>
               <Logo isWhite={true} />
@@ -70,7 +90,7 @@ export default function Home() {
                 <button onClick={openCart} className="relative group">
                   <ShoppingBag size={22} className="text-gray-300 group-hover:text-amber-500 transition" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-amber-500 text-black text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-black shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+                    <span className="absolute -top-2 -right-2 bg-amber-500 text-black text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-[#111111] shadow-[0_0_10px_rgba(245,158,11,0.5)]">
                       {cartCount}
                     </span>
                   )}
@@ -90,9 +110,9 @@ export default function Home() {
       <main className="max-w-[1440px] mx-auto">
         {/* HERO SECTION */}
         {!showSearch && (
-          <section className="relative h-[70vh] md:h-[85vh] w-full flex items-center justify-center overflow-hidden">
+          <section className="relative h-[65vh] md:h-[80vh] w-full flex items-center justify-center overflow-hidden">
             <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1500&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/50 to-transparent" />
             
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="relative z-10 text-center max-w-2xl px-6">
               <span className="text-amber-500 text-xs md:text-sm font-bold uppercase tracking-[0.3em] mb-4 block">The Gold Standard</span>
@@ -109,37 +129,56 @@ export default function Home() {
 
         {/* TRUST BADGES */}
         {!showSearch && (
-          <section className="bg-[#121212] relative z-20 -mt-10 mx-4 md:mx-12 rounded-2xl shadow-2xl p-6 flex justify-between items-center border border-white/5 max-w-4xl lg:mx-auto">
+          <section className="bg-[#1a1a1a] relative z-20 -mt-10 mx-4 md:mx-12 rounded-2xl shadow-2xl p-6 flex justify-between items-center border border-white/5 max-w-4xl lg:mx-auto">
             {[{ icon: Truck, title: 'Free Shipping' }, { icon: ShieldCheck, title: 'Secure Payment' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
               <div key={i} className="flex flex-col md:flex-row items-center text-center md:text-left gap-2 md:gap-4 flex-1 border-r border-white/10 last:border-0 px-4">
                 <item.icon size={24} className="text-amber-500" />
-                <span className="text-[10px] md:text-sm font-bold text-gray-300 tracking-wider uppercase">{item.title}</span>
+                <span className="text-[10px] md:text-sm font-bold text-gray-300 tracking-wider uppercase">{item.name || item.title}</span>
               </div>
             ))}
           </section>
         )}
 
-        {/* CATEGORIES */}
-        {!showSearch && categories.length > 0 && (
+        {/* GLOSSY CATEGORY PILLS (Horizontal Scroll) */}
+        {!showSearch && (
           <section className="mt-16 px-4 md:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl md:text-3xl font-serif font-bold text-white tracking-wide">Shop By Category</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl md:text-3xl font-serif font-bold text-white tracking-wide">Categories</h3>
             </div>
-            <div className="flex gap-6 md:gap-10 overflow-x-auto pb-4 scrollbar-hide">
-              {categories.map((cat) => (
-                <Link to={`/category/${cat.slug}`} key={cat.id} className="min-w-[100px] md:min-w-[140px] flex-shrink-0 group">
-                  <div className="h-24 w-24 md:h-32 md:w-32 mx-auto bg-[#121212] rounded-full overflow-hidden border border-white/10 shadow-lg group-hover:border-amber-500 transition-all duration-500 group-hover:scale-105">
-                    <img src={`https://source.unsplash.com/200x200/?${cat.slug.split('-')[0]},shoes`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500" alt={cat.name} />
-                  </div>
-                  <p className="text-center text-xs md:text-sm font-bold mt-4 text-gray-400 group-hover:text-amber-500 transition uppercase tracking-widest">{cat.name}</p>
-                </Link>
-              ))}
+            
+            <div className="flex gap-4 overflow-x-auto pb-6 pt-2 scrollbar-hide snap-x">
+              {/* 'All' Button */}
+              <button
+                onClick={() => setActiveCategory('all')}
+                className={`relative flex-shrink-0 snap-start overflow-hidden rounded-full px-8 py-3 text-xs md:text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-xl border border-white/20 active:scale-95 bg-gradient-to-b from-amber-400 to-amber-600 text-black ${activeCategory === 'all' ? 'ring-2 ring-white scale-105' : 'opacity-80 hover:opacity-100'}`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent h-1/2 rounded-t-full"></div>
+                <span className="relative z-10 drop-shadow-sm">All Shoes</span>
+              </button>
+
+              {/* Dynamic Category Buttons */}
+              {categories.map((cat, index) => {
+                const gradient = buttonGradients[index % buttonGradients.length];
+                const isActive = activeCategory === cat.slug;
+                
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.slug)}
+                    className={`relative flex-shrink-0 snap-start overflow-hidden rounded-full px-8 py-3 text-xs md:text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-[0_5px_15px_rgba(0,0,0,0.5)] border border-white/20 active:scale-95 bg-gradient-to-b ${gradient} ${isActive ? 'ring-2 ring-white scale-105' : 'opacity-80 hover:opacity-100'}`}
+                  >
+                    {/* Glass/Glossy Shine Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent h-1/2 rounded-t-full"></div>
+                    <span className="relative z-10 drop-shadow-md">{cat.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </section>
         )}
 
         {/* PRODUCTS GRID */}
-        <section id="shop" className="mt-16 px-4 md:px-8">
+        <section id="shop" className="mt-8 px-4 md:px-8">
           <div className="flex items-end justify-between mb-8">
             <div>
               <h3 className="text-2xl md:text-4xl font-serif font-bold text-white tracking-wide">
@@ -150,11 +189,11 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-12">
-            {loading ? <p className="text-amber-500">Loading...</p> : filteredProducts.length === 0 ? <p className="text-gray-500">No products found.</p> :
+            {loading ? <p className="text-amber-500">Loading...</p> : filteredProducts.length === 0 ? <p className="text-gray-500">No products found in this category.</p> :
               filteredProducts.map((p) => (
                 <div key={p.id} className={`flex flex-col group relative ${p.stock <= 0 ? 'opacity-50' : ''}`}>
                   
-                  <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} className="relative bg-[#121212] aspect-[3/4] rounded-2xl overflow-hidden border border-white/5 hover:border-amber-500/50 shadow-lg transition-all duration-500 block mb-4">
+                  <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} className="relative bg-[#1a1a1a] aspect-[3/4] rounded-2xl overflow-hidden border border-white/5 hover:border-amber-500/50 shadow-lg transition-all duration-500 block mb-4">
                     <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
                     
                     {p.stock <= 0 && (
@@ -202,7 +241,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* PREMIUM BLACK & GOLD FOOTER */}
+      {/* FOOTER */}
       <footer className="mt-24 bg-black text-white border-t border-white/10 pt-16 pb-28 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
@@ -241,18 +280,11 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex gap-4">
-             {/* Phone */}
              <a href="tel:+917018721886" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Phone size={16} /></a>
-             
-             {/* Instagram Link Added Here */}
              <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition">
                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
              </a>
-
-             {/* Facebook */}
              <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-             
-             {/* Email */}
              <a href="mailto:itskunalthakurr@gmail.com" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Mail size={16} /></a>
           </div>
           <div className="text-[10px] text-gray-600 font-medium tracking-widest uppercase">
@@ -260,6 +292,41 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* SIZE MODAL */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/80 backdrop-blur-md px-4">
+          <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-[#1a1a1a] border border-white/10 w-full max-w-md rounded-t-[2.5rem] md:rounded-3xl p-8 pb-10 shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-serif font-bold text-2xl text-white tracking-wide">Select Size</h3>
+              <button onClick={() => setSelectedProduct(null)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition text-gray-400"><X size={18} /></button>
+            </div>
+            <div className="flex gap-4 mb-8 bg-black/50 p-4 rounded-2xl border border-white/5">
+               <img src={selectedProduct.images?.[0]} className="w-20 h-20 object-cover rounded-xl border border-white/10" />
+               <div>
+                  <p className="text-sm font-bold text-white line-clamp-2 leading-tight">{selectedProduct.title}</p>
+                  <p className="text-amber-500 font-black mt-2 text-lg">₹{selectedProduct.price}</p>
+               </div>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-3 mb-10">
+              {selectedProduct.sizes?.map((size) => {
+                const isSizeOut = selectedProduct.size_stock && selectedProduct.size_stock[size] <= 0;
+                return (
+                  <button key={size} onClick={() => setSelectedSize(size)} disabled={isSizeOut} className={`relative py-3.5 rounded-xl border font-bold text-sm transition-all ${selectedSize === size ? 'border-amber-500 bg-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'border-white/10 text-gray-400 hover:border-amber-500/50'} ${isSizeOut ? 'opacity-40 cursor-not-allowed bg-transparent' : ''}`}>
+                    {size}
+                    {isSizeOut && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-[1px] bg-red-500 rotate-45"></div></div>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button type="button" onClick={handleSizeConfirm} className="w-full bg-amber-500 text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-amber-400 active:scale-95 transition">
+              Add to Cart
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
