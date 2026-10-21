@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { supabase } from '../lib/supabase';
 import { z } from 'zod';
-import { X, Minus, Plus, ShoppingBag, Loader2, CreditCard } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, Loader2, CreditCard, CheckCircle2 } from 'lucide-react';
 
 const schema = z.object({
   name: z.string().min(2, 'Name required'),
@@ -27,8 +27,8 @@ export default function CartDrawer() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', address: '' });
   const [errors, setErrors] = useState({});
+  const [paymentSuccess, setPaymentSuccess] = useState(false); // Success screen ke liye
 
-  // Jab buyNowMode true ho, direct checkout form kholo
   useEffect(() => {
     if (buyNowMode && isOpen) {
       setShowCheckout(true);
@@ -82,6 +82,7 @@ export default function CartDrawer() {
         description: 'Premium Footwear Purchase',
         order_id: razorpayOrder.id,
         handler: async function (response) {
+          // Payment verification
           const verifyResponse = await fetch(
             `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-razorpay-payment`,
             {
@@ -100,6 +101,7 @@ export default function CartDrawer() {
           const verifyResult = await verifyResponse.json();
 
           if (verifyResult.status === 'success') {
+            // 1. Save Order (Pehle Pending save karo taaki trigger kaam kare)
             const { error: orderError } = await supabase.from('orders').insert({
               id: newOrderId,
               order_number: orderNumber,
@@ -107,12 +109,13 @@ export default function CartDrawer() {
               customer_phone: form.phone,
               customer_address: form.address,
               total_amount: subtotal,
-              status: 'Confirmed', 
+              status: 'Pending',
               razorpay_payment_id: response.razorpay_payment_id,
             });
             
             if (orderError) throw orderError;
 
+            // 2. Save Order Items
             const orderItems = items.map((i) => ({
               order_id: newOrderId,
               product_id: i.id,
@@ -123,6 +126,10 @@ export default function CartDrawer() {
             }));
             await supabase.from('order_items').insert(orderItems);
 
+            // 3. Update status to 'Confirmed' (Isse stock auto-deduct hoga)
+            await supabase.from('orders').update({ status: 'Confirmed' }).eq('id', newOrderId);
+
+            // 4. Send Email to Admin
             const emailKey = import.meta.env.VITE_WEB3FORMS_KEY;
             if (emailKey) {
               fetch('https://api.web3forms.com/submit', {
@@ -138,23 +145,11 @@ export default function CartDrawer() {
               }).catch(err => console.log(err));
             }
 
-            const number = import.meta.env.VITE_WHATSAPP_NUMBER || '917018721886';
-            const lines = [
-              '🛍️ *NEW PAID ORDER – SS TRADERS*', `📋 Order: *${orderNumber}*`, '──────────────',
-              `👤 ${form.name}`, `📞 ${form.phone}`, `📍 ${form.address}`, '──────────────',
-              ...items.map((i) => `• ${i.title} ${i.size ? `(Size: ${i.size})` : ''} × ${i.quantity} = ₹${(i.price * i.quantity).toFixed(2)}`),
-              '──────────────', `💰 *Total Paid: ₹${subtotal.toFixed(2)}*`,
-              `💳 *Razorpay ID:* ${response.razorpay_payment_id}`
-            ];
-            const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\r\n'))}`;
-
+            // 5. Clear Cart & Show Success Message
             clear(); 
-            closeCart(); 
             setShowCheckout(false); 
             setForm({ name: '', phone: '', address: '' });
-            alert('✅ Payment Successful! Order Confirmed.');
-
-            setTimeout(() => { window.location.href = whatsappUrl; }, 500);
+            setPaymentSuccess(true);
           } else {
             alert('❌ Payment verification failed. Please contact support.');
           }
@@ -173,6 +168,29 @@ export default function CartDrawer() {
     }
   };
 
+  // Success Screen (Jab payment ho jaye)
+  if (paymentSuccess) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95 duration-300">
+          <div className="flex justify-center mb-4">
+            <CheckCircle2 size={70} className="text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-black text-gray-900 mb-2">Payment Successful!</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            Aapka order confirm ho gaya hai. Hum jald hi aapko delivery ke liye update karenge.
+          </p>
+          <button 
+            onClick={() => { setPaymentSuccess(false); closeCart(); }}
+            className="w-full bg-emerald-700 text-white font-bold py-3.5 rounded-xl active:scale-95 transition"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/50" onClick={closeCart} />
@@ -181,6 +199,7 @@ export default function CartDrawer() {
           <h2 className="text-lg font-bold flex items-center gap-2"><ShoppingBag size={20} /> Cart ({items.length})</h2>
           <button onClick={closeCart} className="bg-gray-100 p-2 rounded-full"><X size={18} /></button>
         </div>
+        
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {items.length === 0 && <p className="text-center text-gray-400 mt-20">Cart is empty</p>}
           {items.map((item) => (
@@ -200,11 +219,11 @@ export default function CartDrawer() {
             </div>
           ))}
         </div>
+
         {items.length > 0 && (
           <div className="p-4 border-t space-y-3 bg-white">
             <div className="flex justify-between text-lg font-bold"><span>Total</span><span>₹{subtotal.toFixed(2)}</span></div>
             {!showCheckout ? (
-              // Text "Checkout" ki jagah "Buy Now" kar diya hai
               <button onClick={() => setShowCheckout(true)} className="w-full bg-emerald-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg shadow-emerald-700/30">Buy Now</button>
             ) : (
               <form onSubmit={handleCheckout} className="space-y-2">
