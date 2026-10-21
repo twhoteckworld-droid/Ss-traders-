@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail } from 'lucide-react';
+import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
@@ -12,7 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('all'); // Category filter state
+  const [activeCategory, setActiveCategory] = useState('all'); 
   
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
@@ -31,7 +31,6 @@ export default function Home() {
     })();
   }, []);
 
-  // Combined Filter: Search + Category
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -61,7 +60,6 @@ export default function Home() {
     openCart();
   };
 
-  // Gradients for Glossy Buttons
   const buttonGradients = [
     'from-cyan-400 to-cyan-600',
     'from-purple-500 to-purple-700',
@@ -78,9 +76,9 @@ export default function Home() {
   const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
   return (
-    <div className="min-h-screen bg-[#111111] pb-10 font-sans text-white">
-      {/* HEADER (Cleaner, Lighter background) */}
-      <header className="sticky top-0 z-40 bg-[#111111]/90 backdrop-blur-xl border-b border-white/5 shadow-lg">
+    <div className="min-h-screen bg-[#0f0f0f] pb-10 font-sans text-white">
+      {/* HEADER */}
+      <header className="sticky top-0 z-40 bg-[#0f0f0f]/90 backdrop-blur-xl border-b border-white/5 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           {!showSearch ? (
             <>
@@ -90,7 +88,7 @@ export default function Home() {
                 <button onClick={openCart} className="relative group">
                   <ShoppingBag size={22} className="text-gray-300 group-hover:text-amber-500 transition" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-amber-500 text-black text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-[#111111] shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+                    <span className="absolute -top-2 -right-2 bg-amber-500 text-black text-[10px] font-black rounded-full w-5 h-5 flex items-center justify-center border-2 border-[#0f0f0f] shadow-[0_0_10px_rgba(245,158,11,0.5)]">
                       {cartCount}
                     </span>
                   )}
@@ -110,13 +108,13 @@ export default function Home() {
       <main className="max-w-[1440px] mx-auto">
         {/* HERO SECTION */}
         {!showSearch && (
-          <section className="relative h-[65vh] md:h-[80vh] w-full flex items-center justify-center overflow-hidden">
+          <section className="relative h-[60vh] md:h-[75vh] w-full flex items-center justify-center overflow-hidden">
             <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=1500&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f]/50 to-transparent" />
             
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="relative z-10 text-center max-w-2xl px-6">
               <span className="text-amber-500 text-xs md:text-sm font-bold uppercase tracking-[0.3em] mb-4 block">The Gold Standard</span>
-              <h2 className="text-5xl md:text-7xl font-serif font-black text-white leading-[1.1] mb-6 drop-shadow-2xl">Step Into <br/> Luxury.</h2>
+              <h2 className="text-4xl md:text-6xl font-serif font-black text-white leading-[1.1] mb-6 drop-shadow-2xl">Step Into <br/> Luxury.</h2>
               <p className="text-gray-300 text-sm md:text-base mb-8 leading-relaxed max-w-md mx-auto">
                 Discover a collection crafted for those who demand perfection. Premium materials, timeless design.
               </p>
@@ -127,19 +125,19 @@ export default function Home() {
           </section>
         )}
 
-        {/* TRUST BADGES */}
+        {/* TRUST BADGES (Updated to Safe Shipping) */}
         {!showSearch && (
-          <section className="bg-[#1a1a1a] relative z-20 -mt-10 mx-4 md:mx-12 rounded-2xl shadow-2xl p-6 flex justify-between items-center border border-white/5 max-w-4xl lg:mx-auto">
-            {[{ icon: Truck, title: 'Free Shipping' }, { icon: ShieldCheck, title: 'Secure Payment' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
-              <div key={i} className="flex flex-col md:flex-row items-center text-center md:text-left gap-2 md:gap-4 flex-1 border-r border-white/10 last:border-0 px-4">
-                <item.icon size={24} className="text-amber-500" />
-                <span className="text-[10px] md:text-sm font-bold text-gray-300 tracking-wider uppercase">{item.name || item.title}</span>
+          <section className="bg-[#1a1a1a] relative z-20 -mt-10 mx-4 md:mx-12 rounded-2xl shadow-2xl p-5 flex justify-between items-center border border-white/5 max-w-4xl lg:mx-auto">
+            {[{ icon: Truck, title: 'Safe Shipping' }, { icon: ShieldCheck, title: 'Secure Payment' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
+              <div key={i} className="flex flex-col md:flex-row items-center text-center md:text-left gap-2 md:gap-4 flex-1 border-r border-white/10 last:border-0 px-2 md:px-4">
+                <item.icon size={22} className="text-amber-500" />
+                <span className="text-[10px] md:text-sm font-bold text-gray-300 tracking-wider uppercase">{item.title}</span>
               </div>
             ))}
           </section>
         )}
 
-        {/* GLOSSY CATEGORY PILLS (Horizontal Scroll) */}
+        {/* GLOSSY CATEGORY PILLS */}
         {!showSearch && (
           <section className="mt-16 px-4 md:px-8">
             <div className="flex items-center justify-between mb-6">
@@ -147,7 +145,6 @@ export default function Home() {
             </div>
             
             <div className="flex gap-4 overflow-x-auto pb-6 pt-2 scrollbar-hide snap-x">
-              {/* 'All' Button */}
               <button
                 onClick={() => setActiveCategory('all')}
                 className={`relative flex-shrink-0 snap-start overflow-hidden rounded-full px-8 py-3 text-xs md:text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-xl border border-white/20 active:scale-95 bg-gradient-to-b from-amber-400 to-amber-600 text-black ${activeCategory === 'all' ? 'ring-2 ring-white scale-105' : 'opacity-80 hover:opacity-100'}`}
@@ -156,7 +153,6 @@ export default function Home() {
                 <span className="relative z-10 drop-shadow-sm">All Shoes</span>
               </button>
 
-              {/* Dynamic Category Buttons */}
               {categories.map((cat, index) => {
                 const gradient = buttonGradients[index % buttonGradients.length];
                 const isActive = activeCategory === cat.slug;
@@ -167,7 +163,6 @@ export default function Home() {
                     onClick={() => setActiveCategory(cat.slug)}
                     className={`relative flex-shrink-0 snap-start overflow-hidden rounded-full px-8 py-3 text-xs md:text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-[0_5px_15px_rgba(0,0,0,0.5)] border border-white/20 active:scale-95 bg-gradient-to-b ${gradient} ${isActive ? 'ring-2 ring-white scale-105' : 'opacity-80 hover:opacity-100'}`}
                   >
-                    {/* Glass/Glossy Shine Effect */}
                     <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent h-1/2 rounded-t-full"></div>
                     <span className="relative z-10 drop-shadow-md">{cat.name}</span>
                   </button>
@@ -241,8 +236,8 @@ export default function Home() {
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="mt-24 bg-black text-white border-t border-white/10 pt-16 pb-28 px-6">
+      {/* FOOTER WITH REAL BRAND COLORS */}
+      <footer className="mt-24 bg-[#050505] text-white border-t border-white/10 pt-16 pb-28 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
           <div className="lg:col-span-1">
@@ -268,24 +263,42 @@ export default function Home() {
             </ul>
           </div>
 
+          {/* MAP SECTION with Red Google Maps Pin */}
           <div className="bg-[#121212] border border-white/5 rounded-3xl p-6">
-             <h4 className="font-bold text-xs text-white mb-5 flex items-center gap-2 uppercase tracking-widest"><MapPin size={14} className="text-amber-500"/> Visit Our Store</h4>
+             <h4 className="font-bold text-xs text-white mb-5 flex items-center gap-2 uppercase tracking-widest">
+               <MapPin size={16} className="text-red-500"/> Visit Our Store
+             </h4>
              <div className="w-full h-32 rounded-xl overflow-hidden mb-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition duration-500 border border-white/10">
                <iframe src={mapEmbedUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Location"></iframe>
              </div>
              <p className="text-gray-400 text-xs mb-5 font-medium">Mangwain Mohalla 264/12, HP 175001</p>
-             <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="block w-full text-center border border-amber-500 text-amber-500 font-bold text-xs px-4 py-3 rounded-xl hover:bg-amber-500 hover:text-black transition uppercase tracking-widest">Get Directions</a>
+             <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="block w-full text-center bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-4 py-3 rounded-xl transition uppercase tracking-widest shadow-lg shadow-red-900/30">Get Directions</a>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+          
+          {/* REAL BRAND COLORS FOR SOCIAL ICONS */}
           <div className="flex gap-4">
-             <a href="tel:+917018721886" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Phone size={16} /></a>
-             <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+             {/* Call - Green */}
+             <a href="tel:+917018721886" title="Call Us" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-green-500 hover:bg-green-500 hover:text-white transition-all duration-300">
+               <Phone size={18} />
              </a>
-             <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-             <a href="mailto:itskunalthakurr@gmail.com" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-400 hover:text-black hover:bg-amber-500 hover:border-amber-500 transition"><Mail size={16} /></a>
+             
+             {/* Instagram - Gradient Pink/Purple */}
+             <a href="https://www.instagram.com/sstradersmandi?dlrf=MWFvdHZwN2xmMXRtag==" target="_blank" rel="noreferrer" title="Instagram" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-pink-500 hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 hover:text-white hover:border-transparent transition-all duration-300">
+               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+             </a>
+
+             {/* Facebook - Blue */}
+             <a href="https://www.facebook.com/share/1CEvB1fCnh/" target="_blank" rel="noreferrer" title="Facebook" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-blue-500 hover:bg-blue-600 hover:text-white transition-all duration-300">
+               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+             </a>
+             
+             {/* Email - Red/Orange */}
+             <a href="mailto:itskunalthakurr@gmail.com" title="Email Us" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300">
+               <Mail size={18} />
+             </a>
           </div>
           <div className="text-[10px] text-gray-600 font-medium tracking-widest uppercase">
             <p>© 2024 SS Traders. Designed with precision.</p>
