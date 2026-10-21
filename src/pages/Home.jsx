@@ -63,25 +63,17 @@ export default function Home() {
     openCart();
   };
 
-  const mapQuery = encodeURIComponent("SS TRADERS, Mangwain Mohalla 264/12, Himachal Pradesh 175001");
-  const mapEmbedUrl = `https://maps.google.com/maps?q=${mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  const mapDirectionUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
-
   return (
     <div className="min-h-screen bg-obsidian pb-10 font-sans">
-      {/* HEADER - Full Width Amazon Style */}
+      {/* HEADER */}
       <header className="sticky top-0 z-40 bg-charcoal border-b border-[rgba(212,175,55,0.15)] shadow-md">
         <div className="max-w-[1600px] mx-auto px-2 md:px-4 py-2 md:py-3 flex items-center justify-between gap-4">
           
           <Logo isWhite={true} />
           
-          {/* Amazon Style Search Bar */}
           <div className="hidden md:flex flex-1 max-w-3xl items-center bg-obsidian rounded-md border border-white/20 overflow-hidden focus-within:border-gold-primary transition">
             <input 
-              type="text" 
-              placeholder="Search premium footwear..." 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)} 
+              type="text" placeholder="Search premium footwear..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} 
               className="w-full bg-transparent px-4 py-2.5 text-sm text-ivory outline-none placeholder-muted-gold"
             />
             <button className="bg-gold-primary text-obsidian px-6 py-2.5 hover:bg-gold-light transition flex items-center justify-center">
@@ -89,20 +81,13 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Right Icons */}
           <div className="flex items-center gap-5">
             <button onClick={() => setShowSearch(true)} className="md:hidden text-ivory"><Search size={22} /></button>
-            <Link to="/admin/login" className="hidden md:block text-xs font-semibold text-muted-gold hover:text-gold-primary transition">
-              Admin
-            </Link>
+            <Link to="/admin/login" className="hidden md:block text-xs font-semibold text-muted-gold hover:text-gold-primary transition">Admin</Link>
             <button onClick={openCart} className="relative flex items-center gap-1 text-ivory hover:text-gold-primary transition">
               <div className="relative">
                 <ShoppingBag size={24} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-gold-primary text-obsidian text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-obsidian">
-                    {cartCount}
-                  </span>
-                )}
+                {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-gold-primary text-obsidian text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-obsidian">{cartCount}</span>}
               </div>
               <span className="hidden md:block font-bold text-sm mt-1">Cart</span>
             </button>
@@ -132,7 +117,7 @@ export default function Home() {
 
       <main className="max-w-[1600px] mx-auto px-2 md:px-4 mt-4">
         
-        {/* HERO BANNER - Amazon Style Full Width */}
+        {/* HERO BANNER */}
         {!showSearch && activeCategory === 'all' && searchQuery === '' && (
           <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden border border-white/10 rounded-sm mb-6">
             <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
@@ -150,16 +135,42 @@ export default function Home() {
         {/* TRUST BADGES */}
         {!showSearch && (
           <div className="grid grid-cols-3 gap-2 md:gap-4 mb-6">
-            {[
-              { icon: Truck, title: 'Safe Shipping' }, 
-              { icon: ShieldCheck, title: 'Secure Payment' }, 
-              { icon: Headphones, title: '24/7 Support' }
-            ].map((item, i) => (
+            {[{ icon: Truck, title: 'Safe Shipping' }, { icon: ShieldCheck, title: 'Secure Payment' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
               <div key={i} className="flex items-center justify-center gap-2 md:gap-3 bg-charcoal p-3 border border-white/5 rounded-sm">
                 <item.icon size={20} className="text-gold-primary" />
                 <span className="text-[10px] md:text-xs font-bold text-ivory uppercase tracking-wider">{item.title}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* AMAZON STYLE HORIZONTAL SLIDER FOR BESTSELLERS */}
+        {!showSearch && activeCategory === 'all' && products.length > 0 && (
+          <div className="mb-8 bg-charcoal p-4 rounded-sm border border-white/5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-serif font-bold text-ivory">Trending Now</h2>
+              <button className="text-xs text-gold-primary font-bold hover:underline">See all</button>
+            </div>
+            
+            {/* Sliding Container */}
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+              {products.slice(0, 8).map((p) => (
+                <div key={p.id} className="w-32 md:w-48 flex-shrink-0 snap-start bg-obsidian border border-white/10 rounded-sm p-2 hover:border-gold-primary/50 transition group">
+                   <Link to={`/product/${p.id}`} className="block aspect-square overflow-hidden bg-black mb-2 rounded-sm relative">
+                     <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                     {p.original_price && (
+                        <span className="absolute top-1 left-1 bg-gold-primary text-obsidian text-[9px] font-black px-1.5 py-0.5 rounded-sm">
+                          {Math.round(((p.original_price - p.price) / p.original_price) * 100)}% OFF
+                        </span>
+                      )}
+                   </Link>
+                   <Link to={`/product/${p.id}`}>
+                     <h3 className="text-xs text-ivory line-clamp-1 group-hover:text-gold-primary">{p.title}</h3>
+                   </Link>
+                   <p className="text-sm font-bold text-gold-primary mt-1">₹{p.price}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -183,7 +194,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* AMAZON STYLE PRODUCT GRID (DENSE) */}
+        {/* MAIN PRODUCT GRID */}
         <div id="product-grid" className="bg-charcoal p-3 md:p-6 border border-white/5 rounded-sm shadow-lg">
           <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
             <h2 className="text-xl md:text-2xl font-serif font-bold text-ivory">
@@ -199,7 +210,6 @@ export default function Home() {
           ) : filteredProducts.length === 0 ? (
             <p className="text-muted-gold text-center py-10">No products found in this section.</p>
           ) : (
-            /* The Grid: 2 cols mobile, 4 tablet, 5 laptop, 6 desktop */
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 md:gap-4">
               {filteredProducts.map((p) => {
                 const isOut = p.stock <= 0;
@@ -239,7 +249,6 @@ export default function Home() {
                         {p.original_price && <span className="text-[10px] md:text-xs text-muted-gold line-through">₹{p.original_price}</span>}
                       </div>
 
-                      {/* Quick add button - Amazon style */}
                       {!isOut && (
                         <button 
                           onClick={(e) => handleAddClick(e, p)}

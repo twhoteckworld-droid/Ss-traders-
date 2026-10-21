@@ -30,7 +30,8 @@ export default function ProductPage() {
           const firstAvailable = data.sizes.find(s => (data.size_stock?.[s] || 0) > 0);
           setSelectedSize(firstAvailable || '');
         }
-        const { data: relatedData } = await supabase.from('products').select('*').eq('category', data.category).neq('id', data.id).limit(6);
+        // Fetch Related Products (Limit 10 for sliding)
+        const { data: relatedData } = await supabase.from('products').select('*').eq('category', data.category).neq('id', data.id).limit(10);
         setRelatedProducts(relatedData || []);
       }
       setLoading(false);
@@ -71,18 +72,15 @@ export default function ProductPage() {
 
       <main className="max-w-[1600px] mx-auto px-4 py-6">
         {/* 2-Column Layout like Amazon (Image Left, Details Right) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-charcoal p-4 md:p-8 rounded-sm border border-white/5">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-charcoal p-4 md:p-8 rounded-sm border border-white/5 shadow-lg">
           
           {/* LEFT: Image Gallery */}
           <div className="md:col-span-5 flex flex-col md:flex-row gap-4">
-            {/* Thumbnails (Desktop only) */}
             <div className="hidden md:flex flex-col gap-2 w-16">
                {product.images?.map((img, idx) => (
-                 <img key={idx} src={img} onClick={() => setActiveImage(idx)} className={`w-full aspect-square object-cover cursor-pointer border ${activeImage === idx ? 'border-gold-primary' : 'border-transparent opacity-50'}`} />
+                 <img key={idx} src={img} onClick={() => setActiveImage(idx)} className={`w-full aspect-square object-cover cursor-pointer border ${activeImage === idx ? 'border-gold-primary' : 'border-transparent opacity-50 hover:opacity-100'}`} />
                ))}
             </div>
-            
-            {/* Main Image */}
             <div className="flex-1 relative bg-black rounded-sm overflow-hidden aspect-square border border-white/10">
               <img src={product.images?.[activeImage]} className="w-full h-full object-cover" />
             </div>
@@ -138,7 +136,7 @@ export default function ProductPage() {
               </p>
             </div>
 
-            {/* Action Buttons (Amazon Layout) */}
+            {/* Action Buttons */}
             <div className="border border-white/10 p-4 rounded-sm bg-obsidian-light flex flex-col gap-3">
                <button onClick={handleBuyNow} disabled={isOutOfStock} className="w-full gold-gradient-bg text-obsidian py-3 rounded-full font-bold text-sm active:scale-95 transition">
                  {isOutOfStock ? 'Out of Stock' : 'Buy Now'}
@@ -147,20 +145,29 @@ export default function ProductPage() {
                  Add to Cart
                </button>
             </div>
-
           </div>
         </div>
 
-        {/* Related Products */}
+        {/* HORIZONTAL SCROLL FOR RELATED PRODUCTS */}
         {relatedProducts.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-10 bg-charcoal p-4 md:p-6 rounded-sm border border-white/5 shadow-lg">
             <h3 className="text-xl font-serif font-bold text-ivory mb-4">Products related to this item</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            
+            <div className="flex gap-4 overflow-x-auto pb-4 pt-2 scrollbar-hide snap-x">
               {relatedProducts.map((rp) => (
-                <div key={rp.id} onClick={() => { navigate(`/product/${rp.id}`); window.scrollTo(0,0); }} className="bg-charcoal border border-white/5 p-2 rounded-sm cursor-pointer hover:border-gold-primary/50 transition">
-                  <div className="aspect-square bg-black mb-2 overflow-hidden"><img src={rp.images?.[0]} className="w-full h-full object-cover" /></div>
-                  <h4 className="text-xs text-ivory line-clamp-1">{rp.title}</h4>
-                  <p className="text-sm font-bold text-gold-primary mt-1">₹{rp.price}</p>
+                <div 
+                  key={rp.id} 
+                  onClick={() => { navigate(`/product/${rp.id}`); window.scrollTo(0,0); }} 
+                  className="w-40 md:w-56 flex-shrink-0 snap-start bg-obsidian border border-white/10 p-3 rounded-sm cursor-pointer hover:border-gold-primary/50 transition group"
+                >
+                  <div className="aspect-square bg-black mb-3 overflow-hidden rounded-sm relative">
+                    <img src={rp.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                  </div>
+                  <h4 className="text-xs md:text-sm text-ivory line-clamp-1 group-hover:text-gold-primary transition">{rp.title}</h4>
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-sm font-bold text-gold-primary">₹{rp.price}</p>
+                    {rp.original_price && <p className="text-[10px] text-muted-gold line-through">₹{rp.original_price}</p>}
+                  </div>
                 </div>
               ))}
             </div>
