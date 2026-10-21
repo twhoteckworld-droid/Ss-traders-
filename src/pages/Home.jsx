@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { ShoppingBag, Search, X, ChevronRight, Truck, ShieldCheck, Headphones, Image as ImageIcon, MapPin, Phone, Mail, Clock, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -113,14 +113,11 @@ export default function Home() {
                 <Link to={p.stock > 0 ? `/product/${p.id}` : '#'} key={p.id} className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group relative ${p.stock <= 0 ? 'opacity-70' : ''}`}>
                   <div className="relative bg-gray-50 aspect-[4/5] overflow-hidden">
                     <img src={p.images?.[0]} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    
-                    {/* Out of stock tag */}
                     {p.stock <= 0 && (
                       <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[2px]">
                         <span className="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">OUT OF STOCK</span>
                       </div>
                     )}
-
                     {p.images?.length > 1 && (
                       <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 backdrop-blur-sm">
                         <ImageIcon size={10} /> 1/{p.images.length}
@@ -136,8 +133,6 @@ export default function Home() {
                         {p.original_price && <span className="text-[11px] text-gray-400 line-through">MRP: ₹{p.original_price}</span>}
                         <span className="text-base font-black text-emerald-950">₹{p.price}</span>
                       </div>
-                      
-                      {/* Button changes based on stock */}
                       {p.stock > 0 ? (
                         <button onClick={(e) => handleAddClick(e, p)} className="bg-gray-100 text-gray-900 hover:bg-emerald-800 hover:text-white text-[11px] font-bold px-4 py-2 rounded-full active:scale-95 transition-colors">ADD</button>
                       ) : (
@@ -151,25 +146,26 @@ export default function Home() {
         </section>
       </main>
 
-      {/* FOOTER (Same as before) */}
+      {/* PREMIUM FOOTER */}
       <footer className="mt-16 bg-emerald-950 text-white rounded-t-[40px] pt-12 pb-24 px-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-black mb-2 tracking-tight">SS TRADERS</h2>
             <p className="text-emerald-200 text-xs">Step Into Ultimate Comfort.</p>
           </div>
+          
           <div className="bg-emerald-900/50 rounded-2xl p-4 mb-8 border border-emerald-800">
             <div className="flex items-center gap-2 mb-3">
               <MapPin size={18} className="text-amber-400" />
               <h4 className="font-bold text-sm text-white">Visit Our Store</h4>
             </div>
-            <div className="w-full h-48 rounded-xl overflow-hidden shadow-lg mb-3 border border-emerald-700/50">
+            <div className="w-full h-40 rounded-xl overflow-hidden shadow-lg mb-3 border border-emerald-700/50">
               <iframe src={mapEmbedUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Location"></iframe>
             </div>
-            <p className="text-emerald-100 text-sm mb-1">Mangwain Mohalla 264/12, Himachal Pradesh 175001</p>
-            <div className="flex items-center gap-1 text-emerald-300 text-xs mb-4"><Clock size={12} /><span>Closed · Opens 9 am</span></div>
-            <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="inline-block bg-amber-500 text-emerald-950 font-bold text-xs px-4 py-2 rounded-lg active:scale-95 transition">Get Directions</a>
+            <p className="text-emerald-100 text-sm mb-1">Mangwain Mohalla 264/12, HP 175001</p>
+            <a href={mapDirectionUrl} target="_blank" rel="noreferrer" className="inline-block mt-2 bg-amber-500 text-emerald-950 font-bold text-xs px-4 py-2 rounded-lg active:scale-95 transition">Get Directions</a>
           </div>
+
           <div className="grid grid-cols-2 gap-6 mb-8 border-t border-emerald-900 pt-8">
             <div>
               <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider">Quick Links</h4>
@@ -180,14 +176,37 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider">Contact Us</h4>
+              <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider">Policies</h4>
               <ul className="space-y-3 text-sm text-emerald-100">
-                <li className="flex items-center gap-2"><Phone size={14} /> +91 7018721886</li>
-                <li className="flex items-center gap-2"><Mail size={14} /> itskunalthakurr@gmail.com</li>
+                <li><Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition">Terms of Service</Link></li>
+                <li><Link to="/return" className="hover:text-white transition">Return Policy</Link></li>
               </ul>
             </div>
           </div>
-          <div className="text-center border-t border-emerald-900 pt-6 text-[10px] text-emerald-400/60"><p>© 2024 SS Traders. All rights reserved.</p></div>
+
+          {/* Contact Us & Socials */}
+          <div className="border-t border-emerald-900 pt-8 mb-8">
+            <h4 className="font-bold text-sm mb-4 text-amber-400 uppercase tracking-wider text-center">Connect With Us</h4>
+            <div className="flex flex-col items-center gap-3 text-sm text-emerald-100">
+              <div className="flex gap-6">
+                <span className="flex items-center gap-2"><Phone size={14} /> +91 7018721886</span>
+                <span className="flex items-center gap-2"><Mail size={14} /> itskunalthakurr@gmail.com</span>
+              </div>
+              <a 
+                href="https://www.facebook.com/share/1CEvB1fCnh/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold transition mt-2 shadow-lg shadow-blue-900/20"
+              >
+                <Facebook size={18} /> Follow us on Facebook
+              </a>
+            </div>
+          </div>
+          
+          <div className="text-center border-t border-emerald-900 pt-6 text-[10px] text-emerald-400/60">
+            <p>© 2024 SS Traders. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

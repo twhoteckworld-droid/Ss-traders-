@@ -4,7 +4,10 @@ import { supabase } from './lib/supabase';
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import ProductPage from './pages/ProductPage';
-import About from './pages/About'; // <-- Naya Import
+import About from './pages/About';
+import PrivacyPolicy from './pages/PrivacyPolicy'; // <-- Naya Import
+import Terms from './pages/Terms';               // <-- Naya Import
+import ReturnPolicy from './pages/ReturnPolicy'; // <-- Naya Import
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProductUpload from './pages/admin/AdminProductUpload';
@@ -35,7 +38,12 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
-        <Route path="/about" element={<About />} /> {/* <-- Naya Route */}
+        <Route path="/about" element={<About />} />
+        
+        {/* Naye Routes */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/return" element={<ReturnPolicy />} />
         
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
