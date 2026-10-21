@@ -1,1 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --color-obsidian: #080808;
+  --color-charcoal: #111111;
+  --color-charcoal-light: #171717;
+  
+  --color-gold-primary: #D4AF37;
+  --color-gold-dark: #8A6A20;
+  --color-gold-light: #F3E5AB;
+  
+  --color-ivory: #F8F5EC;
+  --color-muted-gold: #B8B1A3;
+  
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+}
+
+@layer base {
+  body {
+    @apply bg-obsidian text-ivory font-sans antialiased selection:bg-gold-primary selection:text-obsidian;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .luxury-card {
+    @apply bg-charcoal border border-[rgba(212,175,55,0.25)] rounded-xl transition-all duration-300;
+  }
+  .luxury-card:hover {
+    @apply border-gold-primary shadow-[0_12px_32px_rgba(0,0,0,0.5)] -translate-y-1;
+  }
+  
+  .gold-gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-gold-dark via-gold-primary to-gold-light;
+  }
+  
+  .gold-gradient-bg {
+    @apply bg-gradient-to-br from-gold-dark via-gold-primary to-gold-light text-obsidian;
+  }
+  
+  .gold-border {
+    @apply border border-[rgba(212,175,55,0.25)];
+  }
+}
