@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../store/cartStore';
-import { ShoppingBag, Search, X, Truck, ShieldCheck, Headphones, Star } from 'lucide-react';
+import { ShoppingBag, Search, X, Truck, ShieldCheck, Headphones, Star, Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
@@ -9,6 +9,7 @@ import Logo from '../components/Logo';
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -26,9 +27,11 @@ export default function Home() {
       try {
         const { data: prods } = await supabase.from('products').select('*').order('created_at', { ascending: false });
         const { data: cats } = await supabase.from('categories').select('*');
+        const { data: config } = await supabase.from('site_settings').select('*').eq('id', 1).maybeSingle();
         
         setProducts(prods || []);
         setCategories(cats || []);
+        if (config) setSettings(config);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -65,6 +68,13 @@ export default function Home() {
     openCart();
   };
 
+  const phone = settings?.contact_phone || '+91 7018721886';
+  const email = settings?.contact_email || 'itskunalthakurr@gmail.com';
+  const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '917018721886';
+  
+  // WhatsApp pre-filled message for queries
+  const whatsappQueryUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hello SS Traders, I have a query regarding...")}`;
+
   return (
     <div className="min-h-screen bg-obsidian pb-10 font-sans">
       {/* HEADER */}
@@ -96,7 +106,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile Search Overlay */}
         {showSearch && (
           <div className="md:hidden absolute top-0 left-0 w-full h-full bg-charcoal flex items-center px-4 gap-2 z-50">
             <input autoFocus placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-obsidian border border-white/20 text-ivory px-3 py-2 rounded-md outline-none focus:border-gold-primary" />
@@ -104,7 +113,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Sub-Navbar (Categories) */}
         <div className="bg-obsidian-light border-t border-white/5 overflow-x-auto scrollbar-hide">
           <div className="max-w-[1600px] mx-auto px-2 md:px-4 flex items-center gap-6 text-xs font-medium text-muted-gold py-2">
             <button onClick={() => setActiveCategory('all')} className="hover:text-gold-primary whitespace-nowrap">All</button>
@@ -118,8 +126,6 @@ export default function Home() {
       </header>
 
       <main className="max-w-[1600px] mx-auto px-2 md:px-4 mt-4">
-        
-        {/* HERO BANNER */}
         {!showSearch && activeCategory === 'all' && searchQuery === '' && (
           <div className="relative w-full h-[300px] md:h-[450px] overflow-hidden border border-white/10 rounded-sm mb-6">
             <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
@@ -134,7 +140,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* TRUST BADGES */}
         {!showSearch && (
           <div className="grid grid-cols-3 gap-2 md:gap-4 mb-6">
             {[{ icon: Truck, title: 'Safe Shipping' }, { icon: ShieldCheck, title: 'Secure Payment' }, { icon: Headphones, title: '24/7 Support' }].map((item, i) => (
@@ -146,7 +151,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* CATEGORIES BANNER SLIDER */}
         {!showSearch && activeCategory === 'all' && categories.length > 0 && (
           <div className="mb-8">
             <h2 className="text-lg md:text-xl font-serif font-bold text-ivory mb-4">Shop By Category</h2>
@@ -166,7 +170,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* MAIN PRODUCT GRID */}
         <div id="product-grid" className="bg-charcoal p-3 md:p-6 border border-white/5 rounded-sm shadow-lg">
           <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
             <h2 className="text-xl md:text-2xl font-serif font-bold text-ivory">
@@ -209,7 +212,6 @@ export default function Home() {
                         <h3 className="text-xs md:text-sm text-ivory font-medium line-clamp-2 leading-snug group-hover:text-gold-primary transition">{p.title}</h3>
                       </Link>
                       
-                      {/* FIXED: Star icon used here was missing in imports earlier */}
                       <div className="mt-1 flex items-center gap-1">
                          <div className="flex text-gold-primary">
                             <Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" /><Star size={10} className="fill-gold-primary" />
@@ -239,16 +241,91 @@ export default function Home() {
         </div>
       </main>
 
-      {/* FOOTER */}
-      <footer className="mt-12 bg-charcoal border-t border-white/10 pt-10 pb-8 px-4 text-center">
-         <Logo isWhite={true} />
-         <div className="flex justify-center gap-6 mt-6 text-xs text-muted-gold font-medium">
-            <Link to="/about" className="hover:text-gold-primary">About</Link>
-            <Link to="/privacy" className="hover:text-gold-primary">Privacy</Link>
-            <Link to="/terms" className="hover:text-gold-primary">Terms</Link>
-            <Link to="/return" className="hover:text-gold-primary">Returns</Link>
-         </div>
-         <p className="text-[10px] text-muted-gold mt-6">© 2024 SS Traders. All Rights Reserved.</p>
+      {/* FOOTER WITH VERTICAL CONTACT & WHATSAPP */}
+      <footer className="mt-16 bg-charcoal border-t border-white/10 pt-12 pb-8 px-4">
+        <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+          
+          {/* 1. Logo & Description */}
+          <div>
+            <Logo isWhite={true} />
+            <p className="text-muted-gold text-xs mt-4 leading-relaxed">Experience the pinnacle of footwear comfort and design. Made for those who walk ahead.</p>
+          </div>
+
+          {/* 2. Quick Links */}
+          <div>
+            <h4 className="font-bold text-sm text-gold-primary uppercase tracking-widest mb-4">Quick Links</h4>
+            <ul className="space-y-3 text-sm text-muted-gold font-medium">
+              <li><Link to="/" className="hover:text-ivory transition">Home</Link></li>
+              <li><Link to="/about" className="hover:text-ivory transition">About Us</Link></li>
+              <li><Link to="/privacy" className="hover:text-ivory transition">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-ivory transition">Terms of Service</Link></li>
+              <li><Link to="/return" className="hover:text-ivory transition">Return Policy</Link></li>
+            </ul>
+          </div>
+
+          {/* 3. Contact & WhatsApp (VERTICALLY ALIGNED) */}
+          <div>
+            <h4 className="font-bold text-sm text-gold-primary uppercase tracking-widest mb-4">Contact & Support</h4>
+            
+            <div className="flex flex-col gap-4">
+              {/* Phone */}
+              <a href={`tel:${phone}`} className="flex items-center gap-3 text-sm text-muted-gold hover:text-ivory transition group">
+                <div className="p-2 bg-obsidian rounded-full border border-white/10 group-hover:border-gold-primary/50">
+                  <Phone size={16} className="text-gold-primary" />
+                </div>
+                <span>{phone}</span>
+              </a>
+
+              {/* Email */}
+              <a href={`mailto:${email}`} className="flex items-center gap-3 text-sm text-muted-gold hover:text-ivory transition group">
+                <div className="p-2 bg-obsidian rounded-full border border-white/10 group-hover:border-gold-primary/50">
+                  <Mail size={16} className="text-gold-primary" />
+                </div>
+                <span className="truncate">{email}</span>
+              </a>
+
+              {/* WhatsApp Query Button */}
+              <a 
+                href={whatsappQueryUrl} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="mt-2 w-full flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold py-3 rounded-lg shadow-lg hover:bg-[#1ebe5d] transition active:scale-95"
+              >
+                <MessageCircle size={20} />
+                WhatsApp Query
+              </a>
+            </div>
+          </div>
+
+          {/* 4. Map / Store */}
+          <div>
+            <h4 className="font-bold text-sm text-gold-primary uppercase tracking-widest mb-4">Visit Store</h4>
+            <div className="w-full h-32 rounded-lg overflow-hidden mb-3 border border-white/10 grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition duration-500">
+               <iframe src={`https://maps.google.com/maps?q=${encodeURIComponent("SS TRADERS, Mangwain Mohalla 264/12, Himachal Pradesh 175001")}&t=&z=15&ie=UTF8&iwloc=&output=embed`} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Location"></iframe>
+            </div>
+            <p className="text-xs text-muted-gold flex items-start gap-2">
+              <MapPin size={14} className="text-gold-primary shrink-0 mt-0.5" />
+              Mangwain Mohalla 264/12, HP 175001
+            </p>
+            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("SS TRADERS, Mangwain Mohalla 264/12, Himachal Pradesh 175001")}`} target="_blank" rel="noreferrer" className="mt-3 block text-center bg-charcoal-light border border-gold-primary/30 text-gold-primary text-[10px] font-bold py-2 rounded hover:bg-gold-primary hover:text-obsidian transition">
+              Get Directions
+            </a>
+          </div>
+        </div>
+
+        <div className="max-w-[1600px] mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex gap-3">
+            {/* Instagram */}
+            <a href={settings?.instagram_url || '#'} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-obsidian border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+            {/* Facebook */}
+            <a href={settings?.facebook_url || '#'} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full bg-obsidian border border-white/10 flex items-center justify-center text-muted-gold hover:text-gold-primary hover:border-gold-primary transition-all duration-300">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+          </div>
+          <p className="text-[10px] text-muted-gold tracking-wider">© 2024 SS Traders. All Rights Reserved.</p>
+        </div>
       </footer>
 
       {/* SIZE MODAL */}
